@@ -326,7 +326,7 @@ header .subtitle { font-size: 0.85rem; opacity: 0.8; max-width: 800px; margin: 0
   /* ── Constants ─────────────────────────────────────────────── */
   const ANNUAL_EXCLUSION = { 2024: 18000, 2025: 19000, 2026: 19000 };
   const SPOUSAL_LIMIT    = { 2024: 185000, 2025: 190000, 2026: 195000 };
-  const LIFETIME_EXEMPT  = { 2024: 13610000, 2025: 13990000, 2026: 7000000 };
+  const LIFETIME_EXEMPT  = { 2024: 13610000, 2025: 13990000, 2026: 15000000 };
   const FOREIGN_CORP_THRESHOLD = { 2024: 18567, 2025: 19570, 2026: 19570 };
   const FOREIGN_INDIV_THRESHOLD = 100000;
 
@@ -570,8 +570,8 @@ header .subtitle { font-size: 0.85rem; opacity: 0.8; max-width: 800px; margin: 0
     const yr = state.year;
     const exempt = LIFETIME_EXEMPT[yr];
     const sunsetNote = yr <= 2025
-      ? `<br><br><em>Note: The lifetime exemption is scheduled to decrease to approximately $7 million in 2026 under current law (sunset of the Tax Cuts and Jobs Act).</em>`
-      : `<br><br><em>Note: The reduced exemption reflects the sunset of the Tax Cuts and Jobs Act provisions. The exemption was approximately $13.99 million in 2025.</em>`;
+      ? `<br><br><em>Note: The lifetime exemption is scheduled to decrease to approximately $15 million in 2026 under current law (sunset of the Tax Cuts and Jobs Act).</em>`
+      : `<br><br><em>Note: The exemption for 2026 reflects updated legislation. The exemption was approximately $13.99 million in 2025.</em>`;
 
     state.results.form709 = "required";
     state.results.reasons.push("Form 709 required based on your answers.");
@@ -805,7 +805,7 @@ header .subtitle { font-size: 0.85rem; opacity: 0.8; max-width: 800px; margin: 0
     html += `<li>The $100,000 foreign gift threshold is <strong>aggregate from all foreign persons</strong>, not per-person.</li>`;
     html += `<li>Form 709 tracks lifetime exemption usage even when no tax is owed.</li>`;
     if (yr <= 2025) {
-      html += `<li>The lifetime exemption is ${fmtUSD(LIFETIME_EXEMPT[yr])} for ${yr} and is scheduled to drop to ~$7M in 2026 under current law.</li>`;
+      html += `<li>The lifetime exemption is ${fmtUSD(LIFETIME_EXEMPT[yr])} for ${yr} and is scheduled to drop to ~$15M in 2026 under current law.</li>`;
     }
     html += `</ul></div>`;
 
