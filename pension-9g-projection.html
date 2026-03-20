@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Pension Tax Projection — Section 9(g) | Philip Stein & Associates</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1a5276;--blue-light:#2980b9;--blue-bg:#eaf2f8;--teal:#0e6655;--teal-bg:#e8f6f3;--teal-border:#1abc9c;--gray-bg:#f8f9fa;--gray-border:#dee2e6;--text:#2c3e50;--text-light:#5d6d7e;--red:#c0392b;--orange:#e67e22}
+html{font-size:15px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:#fff;line-height:1.5}
+.container{max-width:860px;margin:0 auto;padding:0 20px}
+header{background:var(--blue);color:#fff;padding:28px 0 22px;text-align:center}
+header h1{font-size:1.55rem;font-weight:600;letter-spacing:.3px}
+header .subtitle{font-size:.92rem;opacity:.85;margin-top:4px}
+header .hebrew{font-size:.85rem;opacity:.7;margin-top:2px;direction:rtl}
+main{padding:28px 0 40px}
+h2{font-size:1.15rem;color:var(--blue);margin-bottom:14px;padding-bottom:6px;border-bottom:2px solid var(--blue-bg)}
+.card{background:#fff;border:1px solid var(--gray-border);border-radius:8px;padding:24px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.form-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.form-group{flex:1;min-width:180px}
+.form-group.narrow{max-width:140px;min-width:100px}
+label{display:block;font-size:.82rem;font-weight:600;color:var(--text-light);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+select,input[type=number]{width:100%;padding:9px 10px;border:1px solid var(--gray-border);border-radius:5px;font-size:.95rem;color:var(--text);background:#fff;transition:border-color .2s}
+select:focus,input:focus{outline:none;border-color:var(--blue-light);box-shadow:0 0 0 3px rgba(41,128,185,.12)}
+input[type=number]{-moz-appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+.input-prefix{position:relative}
+.input-prefix::before{content:'$';position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:.95rem;pointer-events:none}
+.input-prefix input{padding-left:22px}
+.ss-field{display:none}
+.ss-field.visible{display:block}
+.btn{display:block;width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:1.05rem;font-weight:600;cursor:pointer;transition:background .2s;margin-top:6px}
+.btn:hover{background:var(--blue-light)}
+.btn:active{transform:translateY(1px)}
+#results{display:none}
+.result-line{display:flex;justify-content:space-between;padding:7px 0;font-size:.95rem}
+.result-line.indent{padding-left:20px;color:var(--text-light);font-size:.9rem}
+.result-line.total{font-weight:700;border-top:2px solid var(--text);padding-top:10px;margin-top:4px;font-size:1.05rem}
+.result-line .label{flex:1}
+.result-line .value{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.result-line.deduction .value{color:var(--red)}
+.bracket-table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:.9rem}
+.bracket-table th{text-align:left;padding:6px 8px;background:var(--blue-bg);color:var(--blue);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.3px}
+.bracket-table td{padding:6px 8px;border-bottom:1px solid var(--gray-border)}
+.bracket-table td:nth-child(2),.bracket-table td:nth-child(3),.bracket-table td:nth-child(4){text-align:right;font-variant-numeric:tabular-nums}
+.bracket-table tr:last-child td{border-bottom:none}
+.bracket-table .total-row td{font-weight:700;border-top:2px solid var(--text);background:var(--gray-bg)}
+.summary-9g{background:var(--teal-bg);border:2px solid var(--teal-border);border-radius:8px;padding:24px;margin-top:24px}
+.summary-9g h3{color:var(--teal);font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.summary-9g .big-number{font-size:1.8rem;font-weight:700;color:var(--teal);margin:8px 0}
+.summary-9g .rate{font-size:1rem;color:var(--text-light);margin-bottom:12px}
+.summary-9g .advice{font-size:.88rem;color:var(--text-light);line-height:1.6;border-top:1px solid rgba(14,102,85,.2);padding-top:12px;margin-top:12px}
+.notes{margin-top:24px}
+.note{background:var(--gray-bg);border-left:3px solid var(--blue-light);padding:10px 14px;margin-bottom:10px;font-size:.88rem;color:var(--text-light);border-radius:0 4px 4px 0}
+.note.warning{border-left-color:var(--orange);background:#fef9e7}
+.note.roth{border-left-color:var(--red);background:#fdedec}
+.note strong{color:var(--text)}
+.penalty-box{background:#fef9e7;border:1px solid var(--orange);border-radius:6px;padding:14px;margin-top:14px;font-size:.92rem}
+.penalty-box strong{color:var(--orange)}
+.disclaimer{text-align:center;font-size:.78rem;color:var(--text-light);padding:24px 20px;border-top:1px solid var(--gray-border);margin-top:32px;line-height:1.6}
+@media print{
+  body{font-size:13px}
+  .card{box-shadow:none;border:1px solid #ccc}
+  .btn,.no-print{display:none!important}
+  header{background:none;color:var(--blue);border-bottom:2px solid var(--blue);padding:12px 0}
+  #results{display:block!important}
+  .summary-9g{break-inside:avoid;page-break-inside:avoid}
+}
+@media(max-width:600px){
+  .form-row{flex-direction:column;gap:10px}
+  .form-group.narrow{max-width:none}
+  html{font-size:14px}
+  .container{padding:0 14px}
+  .card{padding:16px}
+  .summary-9g .big-number{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+<div style="text-align:center;padding:20px 0 10px;border-bottom:2px solid #4a7c3f;margin-bottom:20px;background:#fff">
+  <img src="assets/psa-logo.jpg" alt="Philip Stein &amp; Associates" style="height:60px;margin-bottom:8px"><br>
+  <div style="color:#4a7c3f;font-size:0.85rem;font-weight:600">Philip Stein &amp; Associates — Free Tax Tools</div>
+</div>
+<header>
+  <div style="max-width:960px;margin:0 auto;padding:12px 16px 0;"><a href="index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:#1a5276;text-decoration:none;font-weight:500;padding:6px 12px;border:1px solid #aed6f1;border-radius:6px;background:#eaf2f8;transition:background .15s;" onmouseover="this.style.background='#d4e6f1'" onmouseout="this.style.background='#eaf2f8'">← All Tools</a></div>
+<div class="container">
+    <h1>US Pension Tax Projection &mdash; Section 9(g)</h1>
+    <div class="subtitle">Philip Stein &amp; Associates</div>
+    <div class="hebrew">סעיף 9(ג) &mdash; חישוב מס פדרלי על קצבה אמריקאית</div>
+  </div>
+</header>
+<main class="container">
+  <div class="card">
+    <h2>Taxpayer Information</h2>
+    <div class="form-row">
+      <div class="form-group narrow">
+        <label for="taxYear">Tax Year</label>
+        <select id="taxYear"><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option></select>
+      </div>
+      <div class="form-group">
+        <label for="filingStatus">Filing Status</label>
+        <select id="filingStatus">
+          <option value="single">Single</option>
+          <option value="mfj">Married Filing Jointly</option>
+          <option value="mfs">Married Filing Separately</option>
+          <option value="hoh">Head of Household</option>
+          <option value="qss">Qualifying Surviving Spouse</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group narrow">
+        <label for="age">Your Age</label>
+        <input type="number" id="age" min="1" max="120" placeholder="e.g. 68">
+      </div>
+      <div class="form-group narrow" id="spouseAgeGroup" style="display:none">
+        <label for="spouseAge">Spouse Age</label>
+        <input type="number" id="spouseAge" min="1" max="120" placeholder="e.g. 65">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Distribution Details</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="distType">Distribution Type</label>
+        <select id="distType">
+          <option value="traditional">Traditional IRA Distribution</option>
+          <option value="401k">401(k) Distribution</option>
+          <option value="pension">Pension (Defined Benefit Plan)</option>
+          <option value="roth">Roth IRA Distribution</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group input-prefix">
+        <label for="distribution">Annual Distribution Amount</label>
+        <input type="number" id="distribution" min="0" step="1" placeholder="0">
+      </div>
+    </div>
+    <div class="form-row ss-field" id="ssRow" style="display:none;">
+      <div class="form-group input-prefix">
+        <label for="ssAmount">Social Security Benefits Received</label>
+        <input type="number" id="ssAmount" min="0" step="1" placeholder="0" value="0">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn no-print" onclick="calculate()">Calculate Federal Tax</button>
+
+  <div id="results">
+    <div class="card" style="margin-top:24px">
+      <h2>Tax Calculation Breakdown</h2>
+      <div id="breakdown"></div>
+      <div id="bracketSection"></div>
+    </div>
+    <div id="penaltySection"></div>
+    <div class="summary-9g" id="summary9g"></div>
+    <div class="notes" id="notesSection"></div>
+  </div>
+</main>
+<div class="disclaimer">
+  This calculator provides estimates for informational purposes only. It does not constitute tax advice.<br>
+  The Section 9(g) exemption depends on individual circumstances and Israeli tax authority interpretation.<br>
+  Consult both your US and Israeli tax advisors.<br><br>
+  &copy; Philip Stein &amp; Associates
+</div>
+
+<script>
+const TAX_DATA = {
+  2026: {
+    standardDeduction: { single: 15350, mfj: 30700, mfs: 15350, hoh: 22500, qss: 30700 },
+    elderlyAdd: { single: 2000, mfj: 1600, mfs: 1600, hoh: 2000, qss: 1600 },
+    brackets: {
+      single: [[11925,.10],[48475,.12],[103350,.22],[197300,.24],[250525,.32],[626350,.35],[Infinity,.37]],
+      mfj:    [[23850,.10],[96950,.12],[206700,.22],[394600,.24],[501050,.32],[751600,.35],[Infinity,.37]],
+      mfs:    [[11925,.10],[48475,.12],[103350,.22],[197300,.24],[250525,.32],[375800,.35],[Infinity,.37]],
+      hoh:    [[17000,.10],[64850,.12],[103350,.22],[197300,.24],[250525,.32],[626350,.35],[Infinity,.37]],
+      qss:    [[23850,.10],[96950,.12],[206700,.22],[394600,.24],[501050,.32],[751600,.35],[Infinity,.37]]
+    }
+  },
+  2025: {
+    standardDeduction: { single: 15350, mfj: 30700, mfs: 15350, hoh: 22500, qss: 30700 },
+    elderlyAdd: { single: 2000, mfj: 1600, mfs: 1600, hoh: 2000, qss: 1600 },
+    brackets: {
+      single: [[11925,.10],[48475,.12],[103350,.22],[197300,.24],[250525,.32],[626350,.35],[Infinity,.37]],
+      mfj:    [[23850,.10],[96950,.12],[206700,.22],[394600,.24],[501050,.32],[751600,.35],[Infinity,.37]],
+      mfs:    [[11925,.10],[48475,.12],[103350,.22],[197300,.24],[250525,.32],[375800,.35],[Infinity,.37]],
+      hoh:    [[17000,.10],[64850,.12],[103350,.22],[197300,.24],[250525,.32],[626350,.35],[Infinity,.37]],
+      qss:    [[23850,.10],[96950,.12],[206700,.22],[394600,.24],[501050,.32],[751600,.35],[Infinity,.37]]
+    }
+  },
+  2024: {
+    standardDeduction: { single: 14600, mfj: 29200, mfs: 14600, hoh: 21900, qss: 29200 },
+    elderlyAdd: { single: 1950, mfj: 1550, mfs: 1550, hoh: 1950, qss: 1550 },
+    brackets: {
+      single: [[11600,.10],[47150,.12],[100525,.22],[191950,.24],[243725,.32],[609350,.35],[Infinity,.37]],
+      mfj:    [[23200,.10],[94300,.12],[201050,.22],[383900,.24],[487450,.32],[731200,.35],[Infinity,.37]],
+      mfs:    [[11600,.10],[47150,.12],[100525,.22],[191950,.24],[243725,.32],[365600,.35],[Infinity,.37]],
+      hoh:    [[16550,.10],[63100,.12],[100500,.22],[191950,.24],[243725,.32],[609350,.35],[Infinity,.37]],
+      qss:    [[23200,.10],[94300,.12],[201050,.22],[383900,.24],[487450,.32],[731200,.35],[Infinity,.37]]
+    }
+  }
+};
+
+const fmt = n => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtInt = n => n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+document.getElementById('filingStatus').addEventListener('change', toggleSpouse);
+document.getElementById('distType').addEventListener('change', toggleSS);
+
+function toggleSpouse() {
+  const s = document.getElementById('filingStatus').value;
+  document.getElementById('spouseAgeGroup').style.display = (s === 'mfj' || s === 'qss') ? '' : 'none';
+}
+
+function toggleSS() {
+  const t = document.getElementById('distType').value;
+  const show = t === 'combo' || t === 'ss';
+  document.getElementById('ssRow').classList.toggle('visible', show);
+}
+
+function calcSSTaxable(ssTotal, otherIncome, status) {
+  if (ssTotal <= 0) return 0;
+  const provisional = otherIncome + ssTotal * 0.5;
+  let base1, base2;
+  if (status === 'mfj' || status === 'qss') {
+    base1 = 32000; base2 = 44000;
+  } else {
+    base1 = 25000; base2 = 34000;
+  }
+  if (status === 'mfs') {
+    base1 = 0; base2 = 0;
+  }
+  let taxable = 0;
+  if (provisional <= base1) {
+    taxable = 0;
+  } else if (provisional <= base2) {
+    taxable = Math.min((provisional - base1) * 0.5, ssTotal * 0.5);
+  } else {
+    const tier1 = Math.min((base2 - base1) * 0.5, ssTotal * 0.5);
+    const tier2 = (provisional - base2) * 0.85;
+    taxable = Math.min(tier1 + tier2, ssTotal * 0.85);
+  }
+  return Math.max(0, Math.round(taxable * 100) / 100);
+}
+
+function calcTax(taxableIncome, brackets) {
+  const detail = [];
+  let prev = 0, total = 0;
+  for (const [limit, rate] of brackets) {
+    if (taxableIncome <= prev) break;
+    const chunk = Math.min(taxableIncome, limit) - prev;
+    const tax = chunk * rate;
+    detail.push({ from: prev, to: Math.min(taxableIncome, limit), rate, chunk, tax });
+    total += tax;
+    prev = limit;
+  }
+  return { total, detail };
+}
+
+function calculate() {
+  const year = parseInt(document.getElementById('taxYear').value);
+  const status = document.getElementById('filingStatus').value;
+  const age = parseInt(document.getElementById('age').value) || 0;
+  const spouseAge = parseInt(document.getElementById('spouseAge').value) || 0;
+  const distType = document.getElementById('distType').value;
+  const distAmount = parseFloat(document.getElementById('distribution').value) || 0;
+  const ssInput = parseFloat(document.getElementById('ssAmount').value) || 0;
+
+  const data = TAX_DATA[year];
+  const isRoth = distType === 'roth';
+  const isSS = distType === 'ss';
+
+  let pensionIncome = distAmount;
+  let ssAmount = 0;
+
+  if (isSS) {
+    ssAmount = distAmount;
+    pensionIncome = 0;
+  } else if (distType === 'combo') {
+    ssAmount = ssInput;
+  }
+
+  if (isRoth) pensionIncome = 0;
+
+  const ssTaxable = calcSSTaxable(ssAmount, pensionIncome, status);
+  const grossIncome = pensionIncome + ssTaxable;
+
+  // Standard deduction
+  let stdDed = data.standardDeduction[status];
+  let elderlyCount = 0;
+  const elderlyAdd = data.elderlyAdd[status];
+  if (age >= 65) elderlyCount++;
+  if ((status === 'mfj' || status === 'qss') && spouseAge >= 65) elderlyCount++;
+  const totalElderlyAdd = elderlyCount * elderlyAdd;
+  const totalStdDed = stdDed + totalElderlyAdd;
+
+  const taxableIncome = Math.max(0, grossIncome - totalStdDed);
+  const { total: fedTax, detail: bracketDetail } = calcTax(taxableIncome, data.brackets[status]);
+  const effectiveRate = grossIncome > 0 ? (fedTax / grossIncome * 100) : 0;
+
+  // Early withdrawal penalty
+  const earlyPenalty = (age < 59.5 && !isSS && !isRoth && pensionIncome > 0) ? pensionIncome * 0.10 : 0;
+
+  // Build breakdown
+  let html = '';
+  const line = (label, value, cls = '') => `<div class="result-line ${cls}"><span class="label">${label}</span><span class="value">${value}</span></div>`;
+
+  if (isRoth) {
+    html += line('Roth IRA Distribution', '$' + fmt(distAmount));
+    html += line('Taxable Amount (qualified Roth)', '$0.00', 'indent');
+  } else if (isSS) {
+    html += line('Social Security Benefits Received', '$' + fmt(ssAmount));
+    html += line('Taxable Portion of Social Security', '$' + fmt(ssTaxable), 'indent');
+    html += line('Total Gross Income', '$' + fmt(grossIncome));
+  } else if (distType === 'combo') {
+    html += line('Pension / IRA Distribution', '$' + fmt(pensionIncome));
+    if (ssAmount > 0) {
+      html += line('Social Security Benefits Received', '$' + fmt(ssAmount));
+      html += line('Taxable Portion of Social Security', '$' + fmt(ssTaxable), 'indent');
+    }
+    html += line('Total Gross Income', '$' + fmt(grossIncome));
+  } else {
+    html += line('Gross Distribution', '$' + fmt(pensionIncome));
+    html += line('Total Gross Income', '$' + fmt(grossIncome));
+  }
+
+  let dedLabel = `Standard Deduction ($${fmtInt(stdDed)}`;
+  if (totalElderlyAdd > 0) {
+    dedLabel += ` + $${fmtInt(totalElderlyAdd)} elderly`;
+    if (elderlyCount > 1) dedLabel += ' &times;' + elderlyCount;
+  }
+  dedLabel += ')';
+  html += line(dedLabel, '&minus;$' + fmt(totalStdDed), 'deduction');
+  html += line('Taxable Income', '$' + fmt(taxableIncome), 'total');
+
+  document.getElementById('breakdown').innerHTML = html;
+
+  // Bracket table
+  let bHtml = '<table class="bracket-table"><thead><tr><th>Bracket</th><th>Income</th><th>Rate</th><th>Tax</th></tr></thead><tbody>';
+  for (const b of bracketDetail) {
+    bHtml += `<tr><td>$${fmtInt(b.from)} – $${fmtInt(b.to)}</td><td>$${fmt(b.chunk)}</td><td>${(b.rate*100).toFixed(0)}%</td><td>$${fmt(b.tax)}</td></tr>`;
+  }
+  bHtml += `<tr class="total-row"><td>Total Federal Tax</td><td></td><td></td><td>$${fmt(fedTax)}</td></tr>`;
+  bHtml += `</tbody></table>`;
+  bHtml += `<div class="result-line" style="margin-top:8px"><span class="label">Effective Tax Rate</span><span class="value">${effectiveRate.toFixed(2)}%</span></div>`;
+  document.getElementById('bracketSection').innerHTML = bHtml;
+
+  // Early penalty
+  if (earlyPenalty > 0) {
+    document.getElementById('penaltySection').innerHTML = `<div class="penalty-box"><strong>Early Distribution Penalty (age under 59&frac12;):</strong> An additional 10% penalty of <strong>$${fmt(earlyPenalty)}</strong> may apply on top of the income tax above. This penalty is separate from income tax and is not included in the 9(g) calculation above. Exceptions may apply — consult your tax advisor.</div>`;
+  } else {
+    document.getElementById('penaltySection').innerHTML = '';
+  }
+
+  // 9(g) summary
+  const totalWithPenalty = fedTax + earlyPenalty;
+  let sHtml = `<h3><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#0e6655" stroke-width="2"/><path d="M6 10l3 3 5-6" stroke="#0e6655" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>For Israeli Section 9(g) Purposes</h3>`;
+  if (isRoth) {
+    sHtml += `<div class="big-number">$0.00</div>`;
+    sHtml += `<div class="rate">US federal tax on this Roth IRA distribution: $0 (qualified distributions are tax-free)</div>`;
+    sHtml += `<div class="advice">Since no US tax is paid on qualified Roth IRA distributions, there is no foreign tax credit available for the Section 9(g) exemption claim. Consult your Israeli tax advisor regarding the treatment of Roth distributions.</div>`;
+  } else {
+    sHtml += `<div class="big-number">$${fmt(fedTax)}</div>`;
+    sHtml += `<div class="rate">Effective rate: ${effectiveRate.toFixed(2)}% on gross income of $${fmt(isRoth ? distAmount : grossIncome)}</div>`;
+    if (earlyPenalty > 0) {
+      sHtml += `<div class="rate">Including 10% early withdrawal penalty: $${fmt(totalWithPenalty)} total</div>`;
+    }
+    sHtml += `<div class="advice">This amount represents the US federal income tax that would apply if the pension distribution were your only source of income for tax year ${year}. Present this calculation to your Israeli tax advisor for the Section 9(g) / סעיף 9(ג) exemption claim.</div>`;
+  }
+  document.getElementById('summary9g').innerHTML = sHtml;
+
+  // Notes
+  let notes = '';
+  if (isRoth) {
+    notes += `<div class="note roth"><strong>Roth IRA Note:</strong> Qualified Roth IRA distributions (account held 5+ years, owner 59&frac12;+) are generally tax-free in the US. This means $0 US federal tax was paid, which may complicate the 9(g) claim since the exemption requires foreign tax to have been paid on the income.</div>`;
+  }
+  if (isSS || (distType === 'combo' && ssAmount > 0)) {
+    const pct = ssAmount > 0 ? (ssTaxable / ssAmount * 100).toFixed(1) : '0.0';
+    notes += `<div class="note"><strong>Social Security:</strong> Of the $${fmt(ssAmount)} in benefits, $${fmt(ssTaxable)} (${pct}%) is included in taxable income based on the provisional income formula.</div>`;
+  }
+  notes += `<div class="note"><strong>State Tax:</strong> This calculator covers federal income tax only. Some US states also tax pension income, which could increase the total US tax available for the 9(g) credit.</div>`;
+  notes += `<div class="note"><strong>Treaty Coordination:</strong> The 9(g) exemption applies to pension income from a foreign country where the income was taxed. The foreign tax credit under the US-Israel tax treaty may also apply. Coordinate with both your Israeli and US tax advisors.</div>`;
+  document.getElementById('notesSection').innerHTML = notes;
+
+  // 2026 estimate notice
+  let estimateNotice = document.getElementById('estimateNotice');
+  if (!estimateNotice) {
+    estimateNotice = document.createElement('div');
+    estimateNotice.id = 'estimateNotice';
+    estimateNotice.className = 'note warning';
+    document.getElementById('notesSection').prepend(estimateNotice);
+  }
+  if (year === 2026) {
+    estimateNotice.innerHTML = '<strong>⚠️ 2026 tax brackets and deductions are estimates based on 2025 values.</strong> Official IRS figures will be announced in late 2026.';
+    estimateNotice.style.display = '';
+  } else {
+    estimateNotice.style.display = 'none';
+  }
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+<div style="text-align:center;padding:20px 0;margin-top:30px;border-top:1px solid #ddd;color:#888;font-size:0.8rem">
+  © 2026 <a href="https://www.pstein.com" style="color:#4a7c3f;text-decoration:none">Philip Stein &amp; Associates</a> · Free US-Israel Tax Tools
+</div>
+</body>
+</html>

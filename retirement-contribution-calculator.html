@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>401(k) &amp; IRA Contribution Calculator — Philip Stein &amp; Associates</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #1a5276;
+  --blue-light: #2980b9;
+  --blue-pale: #d6eaf8;
+  --green: #27ae60;
+  --green-bg: #eafaf1;
+  --yellow: #f39c12;
+  --yellow-bg: #fef9e7;
+  --red: #c0392b;
+  --red-bg: #fdedec;
+  --gray-50: #f8f9fa;
+  --gray-100: #f1f3f5;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-500: #868e96;
+  --gray-700: #495057;
+  --gray-900: #212529;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.05);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--gray-100);
+  color: var(--gray-900);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 860px; margin: 0 auto; padding: 16px; }
+
+header {
+  background: var(--blue);
+  color: #fff;
+  padding: 28px 0 24px;
+  text-align: center;
+}
+header h1 { font-size: 1.55rem; font-weight: 700; letter-spacing: -.01em; }
+header p { font-size: .88rem; opacity: .82; margin-top: 4px; }
+
+/* --- Form --- */
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  margin-top: 20px;
+}
+.card h2 {
+  font-size: 1.1rem;
+  color: var(--blue);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--blue-pale);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.form-group { display: flex; flex-direction: column; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.form-group input, .form-group select {
+  padding: 9px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  font-size: .95rem;
+  color: var(--gray-900);
+  background: #fff;
+  transition: border-color .15s;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--blue-light);
+  box-shadow: 0 0 0 3px rgba(41,128,185,.15);
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  color: var(--gray-700);
+  font-size: .65rem;
+  font-weight: 700;
+  cursor: help;
+  position: relative;
+  flex-shrink: 0;
+}
+.tooltip-icon .tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gray-900);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 400;
+  padding: 6px 10px;
+  border-radius: 6px;
+  width: 220px;
+  line-height: 1.4;
+  z-index: 10;
+  text-align: left;
+}
+.tooltip-icon:hover .tip, .tooltip-icon:focus .tip { display: block; }
+
+.check-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.check-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue); }
+.check-group label { font-size: .88rem; font-weight: 400; margin-bottom: 0; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 32px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+  margin-top: 8px;
+}
+.btn:hover { background: var(--blue-light); }
+
+/* --- Results --- */
+#results { display: none; }
+
+.result-card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-top: 16px;
+  overflow: hidden;
+}
+.result-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .1s;
+}
+.result-card-header:hover { background: var(--gray-50); }
+.result-card-header h3 {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.result-card-header .arrow {
+  font-size: .7rem;
+  transition: transform .2s;
+  color: var(--gray-500);
+}
+.result-card-header.open .arrow { transform: rotate(90deg); }
+.result-card-body {
+  display: none;
+  padding: 0 20px 18px;
+}
+.result-card-body.open { display: block; }
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.status-green { background: var(--green-bg); color: var(--green); }
+.status-yellow { background: var(--yellow-bg); color: var(--yellow); }
+.status-red { background: var(--red-bg); color: var(--red); }
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: .9rem;
+}
+.result-row:last-child { border-bottom: none; }
+.result-row .label { color: var(--gray-700); }
+.result-row .value { font-weight: 600; text-align: right; }
+
+.note {
+  background: var(--gray-50);
+  border-left: 3px solid var(--blue-light);
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: .83rem;
+  color: var(--gray-700);
+  border-radius: 0 6px 6px 0;
+  line-height: 1.5;
+}
+
+.summary-card {
+  background: var(--blue);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 20px;
+  box-shadow: var(--shadow-md);
+}
+.summary-card h3 { font-size: 1rem; opacity: .85; margin-bottom: 8px; }
+.summary-card .big-number { font-size: 1.8rem; font-weight: 700; }
+
+/* Israel notes */
+.collapsible {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-top: 20px;
+}
+.collapsible-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 16px 20px;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--blue);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.collapsible-toggle .arrow { font-size: .7rem; transition: transform .2s; color: var(--gray-500); }
+.collapsible-toggle.open .arrow { transform: rotate(90deg); }
+.collapsible-body {
+  display: none;
+  padding: 0 20px 18px;
+}
+.collapsible-body.open { display: block; }
+.collapsible-body ul { padding-left: 20px; }
+.collapsible-body li {
+  font-size: .85rem;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.disclaimer {
+  text-align: center;
+  font-size: .78rem;
+  color: var(--gray-500);
+  margin: 24px 0 32px;
+  line-height: 1.5;
+  padding: 0 16px;
+}
+
+/* Hidden helper */
+.hidden { display: none !important; }
+
+/* Print */
+@media print {
+  body { background: #fff; }
+  header { padding: 12px 0; }
+  .card, .result-card, .collapsible, .summary-card { box-shadow: none; border: 1px solid var(--gray-200); }
+  .btn, #inputSection { display: none; }
+  #results { display: block !important; }
+  .result-card-body { display: block !important; }
+  .collapsible-body { display: block !important; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .container { padding: 12px; }
+  header h1 { font-size: 1.25rem; }
+  .summary-card .big-number { font-size: 1.5rem; }
+}
+</style>
+</head>
+<body>
+<div style="text-align:center;padding:20px 0 10px;border-bottom:2px solid #4a7c3f;margin-bottom:20px;background:#fff">
+  <img src="assets/psa-logo.jpg" alt="Philip Stein &amp; Associates" style="height:60px;margin-bottom:8px"><br>
+  <div style="color:#4a7c3f;font-size:0.85rem;font-weight:600">Philip Stein &amp; Associates — Free Tax Tools</div>
+</div>
+<header>
+  <div class="container">
+    <h1>401(k) &amp; IRA Contribution Calculator</h1>
+    <p>Philip Stein &amp; Associates — Internal Tool</p>
+  </div>
+</header>
+
+<div style="max-width:960px;margin:0 auto;padding:12px 16px 0;"><a href="index.html" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:#1a5276;text-decoration:none;font-weight:500;padding:6px 12px;border:1px solid #aed6f1;border-radius:6px;background:#eaf2f8;transition:background .15s;" onmouseover="this.style.background='#d4e6f1'" onmouseout="this.style.background='#eaf2f8'">← All Tools</a></div>
+<div class="container">
+  <!-- Input Form -->
+  <div class="card" id="inputSection">
+    <h2>Your Information</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tax Year</label>
+        <select id="taxYear">
+          <option value="2026">2026 (estimated)</option>
+          <option value="2025" selected>2025</option>
+          <option value="2024">2024</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Age (as of Dec 31 of tax year)
+          <span class="tooltip-icon" tabindex="0">?<span class="tip">Your age on December 31 of the selected tax year. This determines catch-up contribution eligibility.</span></span>
+        </label>
+        <input type="number" id="age" min="16" max="120" placeholder="e.g. 52">
+      </div>
+
+      <div class="form-group">
+        <label>Filing Status</label>
+        <select id="filingStatus">
+          <option value="single">Single</option>
+          <option value="mfj">Married Filing Jointly (MFJ)</option>
+          <option value="mfs">Married Filing Separately (MFS)</option>
+          <option value="hoh">Head of Household (HoH)</option>
+          <option value="qss">Qualifying Surviving Spouse (QSS)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Modified Adjusted Gross Income
+          <span class="tooltip-icon" tabindex="0">?<span class="tip">MAGI is your AGI with certain deductions added back. It determines eligibility for Roth IRA contributions and Traditional IRA deductibility.</span></span>
+        </label>
+        <input type="text" id="magi" placeholder="e.g. 150000" inputmode="numeric">
+      </div>
+
+      <div class="form-group full">
+        <div class="check-group">
+          <input type="checkbox" id="hasWorkPlan">
+          <label for="hasWorkPlan">Taxpayer has access to an employer retirement plan (401k/403b)
+            <span class="tooltip-icon" tabindex="0">?<span class="tip">Check this if you (or the taxpayer) are eligible to participate in an employer-sponsored retirement plan, even if you chose not to contribute.</span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group full hidden" id="spousePlanGroup">
+        <div class="check-group">
+          <input type="checkbox" id="spouseHasWorkPlan">
+          <label for="spouseHasWorkPlan">Spouse has access to an employer retirement plan</label>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div class="check-group">
+          <input type="checkbox" id="isSelfEmployed">
+          <label for="isSelfEmployed">Taxpayer has self-employment income</label>
+        </div>
+      </div>
+
+      <div class="form-group hidden" id="seIncomeGroup">
+        <label>Net Self-Employment Income
+          <span class="tooltip-icon" tabindex="0">?<span class="tip">Net earnings from self-employment before the deduction for 1/2 of SE tax.</span></span>
+        </label>
+        <input type="text" id="seIncome" placeholder="e.g. 100000" inputmode="numeric">
+      </div>
+
+      <div class="form-group full hidden" id="sePlanTypeGroup">
+        <label style="margin-bottom:6px;">Self-Employed Retirement Plan Type</label>
+        <div class="check-group" style="gap:20px;">
+          <label style="font-size:.88rem;font-weight:400;margin-bottom:0;display:flex;align-items:center;gap:4px;">
+            <input type="radio" name="sePlanType" value="sep" checked style="width:16px;height:16px;accent-color:var(--blue);"> SEP IRA
+          </label>
+          <label style="font-size:.88rem;font-weight:400;margin-bottom:0;display:flex;align-items:center;gap:4px;">
+            <input type="radio" name="sePlanType" value="solo401k" style="width:16px;height:16px;accent-color:var(--blue);"> Solo 401(k)
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div class="check-group">
+          <input type="checkbox" id="hasSimple">
+          <label for="hasSimple">Taxpayer participates in a SIMPLE IRA plan</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>401(k) Contributions YTD (optional)
+          <span class="tooltip-icon" tabindex="0">?<span class="tip">Enter your employee contributions so far this year to see how much room you have remaining.</span></span>
+        </label>
+        <input type="text" id="ytd401k" placeholder="0" inputmode="numeric">
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:20px;">
+      <button class="btn" onclick="calculate()">Calculate Limits</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div id="estimateNotice" class="hidden" style="background:var(--yellow-bg);border:1px solid var(--yellow);border-radius:var(--radius);padding:14px 18px;margin-bottom:4px;font-size:.88rem;color:#7d6608;">&#9888;&#65039; 2026 limits are estimates based on 2025 values. Official IRS limits for 2026 will be announced in late 2026.</div>
+    <div id="summaryCard" class="summary-card">
+      <h3>Combined Maximum Contribution Potential</h3>
+      <div class="big-number" id="totalMax">—</div>
+    </div>
+
+    <!-- 401k -->
+    <div class="result-card" id="card401k">
+      <div class="result-card-header open" onclick="toggleCard(this)">
+        <h3><span id="badge401k" class="status-badge status-green">Eligible</span> 401(k) / 403(b) / 457(b)</h3>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="result-card-body open" id="body401k"></div>
+    </div>
+
+    <!-- Roth 401k -->
+    <div class="result-card" id="cardRoth401k">
+      <div class="result-card-header open" onclick="toggleCard(this)">
+        <h3><span id="badgeRoth401k" class="status-badge status-green">Eligible</span> Roth 401(k)</h3>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="result-card-body open" id="bodyRoth401k"></div>
+    </div>
+
+    <!-- Traditional IRA -->
+    <div class="result-card" id="cardTradIRA">
+      <div class="result-card-header open" onclick="toggleCard(this)">
+        <h3><span id="badgeTradIRA" class="status-badge status-green">Fully Deductible</span> Traditional IRA</h3>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="result-card-body open" id="bodyTradIRA"></div>
+    </div>
+
+    <!-- Roth IRA -->
+    <div class="result-card" id="cardRothIRA">
+      <div class="result-card-header open" onclick="toggleCard(this)">
+        <h3><span id="badgeRothIRA" class="status-badge status-green">Eligible</span> Roth IRA</h3>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="result-card-body open" id="bodyRothIRA"></div>
+    </div>
+
+    <!-- SEP IRA -->
+    <div class="result-card hidden" id="cardSEP">
+      <div class="result-card-header open" onclick="toggleCard(this)">
+        <h3><span id="badgeSEP" class="status-badge status-green">Eligible</span> SEP IRA</h3>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="result-card-body open" id="bodySEP"></div>
+    </div>
+
+    <!-- Solo 401(k) -->
+    <div class="result-card hidden" id="cardSolo401k">
+      <div class="result-card-header open" onclick="toggleCard(this)">
+        <h3><span id="badgeSolo401k" class="status-badge status-green">Eligible</span> Solo 401(k)</h3>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="result-card-body open" id="bodySolo401k"></div>
+    </div>
+
+    <!-- SIMPLE IRA -->
+    <div class="result-card hidden" id="cardSIMPLE">
+      <div class="result-card-header open" onclick="toggleCard(this)">
+        <h3><span id="badgeSIMPLE" class="status-badge status-green">Eligible</span> SIMPLE IRA</h3>
+        <span class="arrow">&#9654;</span>
+      </div>
+      <div class="result-card-body open" id="bodySIMPLE"></div>
+    </div>
+
+    <!-- Combined Limit Note -->
+    <div class="note hidden" id="combinedLimitNote" style="margin-top:16px;font-size:.88rem;border-left-width:4px;border-left-color:var(--yellow);background:var(--yellow-bg);padding:14px 18px;">
+      <strong>Combined 401(k) Deferral Limit:</strong> The 401(k) employee deferral limit (<span id="combinedLimitAmt"></span> for <span id="combinedLimitYear"></span>) is a <strong>COMBINED</strong> limit across ALL employers. If you have multiple jobs with 401(k) access, or a W-2 job + Solo 401(k), the total employee deferrals cannot exceed this limit. However, employer contributions are per-plan.
+    </div>
+
+    <!-- Israel Notes -->
+    <div class="collapsible">
+      <button class="collapsible-toggle" onclick="toggleCollapsible(this)">
+        Notes for US-Israel Filers
+        <span class="arrow">&#9654;</span>
+      </button>
+      <div class="collapsible-body">
+        <ul>
+          <li><strong>Traditional IRA deductions</strong> may not be deductible against Israeli income. Israel does not recognize US IRA contributions as a deduction from Israeli-source income.</li>
+          <li><strong>Roth IRA is NOT recognized as tax-exempt by Israel.</strong> Growth inside a Roth IRA is taxable in Israel as it accrues, or upon distribution, depending on your reporting position.</li>
+          <li><strong>Israeli retirement accounts</strong> (keren pensia, keren hishtalmut, kupat gemel) are NOT US retirement accounts and do not count toward IRS contribution limits.</li>
+          <li><strong>Early withdrawal penalty:</strong> 401(k) or IRA withdrawals before age 59½ generally incur a 10% US penalty plus ordinary income tax.</li>
+          <li><strong>Treaty Article 17</strong> of the US-Israel tax treaty may provide some relief for pension distributions. Consult your advisor for applicability.</li>
+          <li><strong>Backdoor Roth conversions</strong> work for US federal tax purposes, but Israel may treat the conversion as a taxable event. Coordinate with both US and Israeli tax advisors.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="disclaimer">This calculator provides estimates based on published IRS limits. It does not constitute tax advice. Consult your tax advisor for personalized advice. &copy; Philip Stein &amp; Associates</p>
+  </div>
+</div>
+
+<script>
+// --- Show/hide conditional fields ---
+document.getElementById('filingStatus').addEventListener('change', function() {
+  document.getElementById('spousePlanGroup').classList.toggle('hidden', this.value !== 'mfj');
+});
+document.getElementById('isSelfEmployed').addEventListener('change', function() {
+  document.getElementById('seIncomeGroup').classList.toggle('hidden', !this.checked);
+  document.getElementById('sePlanTypeGroup').classList.toggle('hidden', !this.checked);
+});
+
+// --- UI helpers ---
+function toggleCard(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+function toggleCollapsible(btn) {
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+function fmt(n) {
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+function parseMoney(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace(/[^0-9.\-]/g, '')) || 0;
+}
+
+function row(label, value) {
+  return '<div class="result-row"><span class="label">' + label + '</span><span class="value">' + value + '</span></div>';
+}
+function noteBox(text) {
+  return '<div class="note">' + text + '</div>';
+}
+
+// --- Limit data ---
+var LIMITS = {
+  2026: {
+    deferral401k: 23500,
+    catchUp401k: 7500,
+    superCatchUp401k: 11250,
+    totalLimit401k: 70000,
+    iraBase: 7000,
+    iraCatchUp: 1000,
+    tradPhaseOut: {
+      single: [79000, 89000],
+      hoh: [79000, 89000],
+      mfj_has_plan: [126000, 146000],
+      mfj_no_plan_spouse_has: [236000, 246000],
+      mfs: [0, 10000],
+      qss: [126000, 146000]
+    },
+    rothPhaseOut: {
+      single: [150000, 165000],
+      hoh: [150000, 165000],
+      mfj: [236000, 246000],
+      mfs: [0, 10000],
+      qss: [236000, 246000]
+    },
+    sepMax: 70000,
+    simpleBase: 16500,
+    simpleCatchUp: 3500,
+    simpleSuperCatchUp: 5250
+  },
+  2025: {
+    deferral401k: 23500,
+    catchUp401k: 7500,
+    superCatchUp401k: 11250,
+    totalLimit401k: 70000,
+    iraBase: 7000,
+    iraCatchUp: 1000,
+    tradPhaseOut: {
+      single: [79000, 89000],
+      hoh: [79000, 89000],
+      mfj_has_plan: [126000, 146000],
+      mfj_no_plan_spouse_has: [236000, 246000],
+      mfs: [0, 10000],
+      qss: [126000, 146000]
+    },
+    rothPhaseOut: {
+      single: [150000, 165000],
+      hoh: [150000, 165000],
+      mfj: [236000, 246000],
+      mfs: [0, 10000],
+      qss: [236000, 246000]
+    },
+    sepMax: 70000,
+    simpleBase: 16500,
+    simpleCatchUp: 3500,
+    simpleSuperCatchUp: 5250
+  },
+  2024: {
+    deferral401k: 23000,
+    catchUp401k: 7500,
+    superCatchUp401k: 7500, // no super catch-up in 2024
+    totalLimit401k: 69000,
+    iraBase: 7000,
+    iraCatchUp: 1000,
+    tradPhaseOut: {
+      single: [77000, 87000],
+      hoh: [77000, 87000],
+      mfj_has_plan: [123000, 143000],
+      mfj_no_plan_spouse_has: [230000, 240000],
+      mfs: [0, 10000],
+      qss: [123000, 143000]
+    },
+    rothPhaseOut: {
+      single: [146000, 161000],
+      hoh: [146000, 161000],
+      mfj: [230000, 240000],
+      mfs: [0, 10000],
+      qss: [230000, 240000]
+    },
+    sepMax: 69000,
+    simpleBase: 16000,
+    simpleCatchUp: 3500,
+    simpleSuperCatchUp: 3500
+  }
+};
+
+// Phase-out calculation: returns fraction eligible (1 = full, 0 = none)
+function phaseOutFraction(magi, range) {
+  if (magi <= range[0]) return 1;
+  if (magi >= range[1]) return 0;
+  return (range[1] - magi) / (range[1] - range[0]);
+}
+
+// Roth partial: round UP to nearest $10
+function rothPartial(maxContrib, magi, range) {
+  if (magi <= range[0]) return maxContrib;
+  if (magi >= range[1]) return 0;
+  var reduced = maxContrib * (range[1] - magi) / (range[1] - range[0]);
+  // Round up to nearest $10
+  reduced = Math.ceil(reduced / 10) * 10;
+  // Minimum $200 if in range
+  if (reduced < 200 && reduced > 0) reduced = 200;
+  return Math.min(reduced, maxContrib);
+}
+
+// Traditional IRA deductible amount (round to nearest $10, with $200 min if partial)
+function tradDeductible(maxContrib, magi, range) {
+  if (magi <= range[0]) return maxContrib;
+  if (magi >= range[1]) return 0;
+  var reduced = maxContrib * (range[1] - magi) / (range[1] - range[0]);
+  reduced = Math.ceil(reduced / 10) * 10;
+  if (reduced < 200 && reduced > 0) reduced = 200;
+  return Math.min(reduced, maxContrib);
+}
+
+function calculate() {
+  var year = parseInt(document.getElementById('taxYear').value);
+  var age = parseInt(document.getElementById('age').value);
+  var status = document.getElementById('filingStatus').value;
+  var magi = parseMoney(document.getElementById('magi').value);
+  var hasWorkPlan = document.getElementById('hasWorkPlan').checked;
+  var spouseHasPlan = document.getElementById('spouseHasWorkPlan').checked;
+  var isSE = document.getElementById('isSelfEmployed').checked;
+  var seIncome = parseMoney(document.getElementById('seIncome').value);
+  var hasSimple = document.getElementById('hasSimple').checked;
+  var ytd = parseMoney(document.getElementById('ytd401k').value);
+
+  if (isNaN(age) || age < 16) {
+    alert('Please enter a valid age (16 or older).');
+    return;
+  }
+
+  var L = LIMITS[year];
+  var is50Plus = age >= 50;
+  var isSuperCatchUp = (year >= 2025) && age >= 60 && age <= 63;
+  var totalMax = 0;
+
+  // ===== 401(k) =====
+  var base401k = L.deferral401k;
+  var catchUp401k = 0;
+  if (isSuperCatchUp) {
+    catchUp401k = L.superCatchUp401k;
+  } else if (is50Plus) {
+    catchUp401k = L.catchUp401k;
+  }
+  var max401k = base401k + catchUp401k;
+  var remaining401k = Math.max(0, max401k - ytd);
+
+  if (hasWorkPlan) {
+    document.getElementById('card401k').classList.remove('hidden');
+    document.getElementById('cardRoth401k').classList.remove('hidden');
+
+    var html401k = row('Employee Deferral Limit', fmt(base401k));
+    if (is50Plus) {
+      var catchUpLabel = isSuperCatchUp ? 'Super Catch-Up (ages 60–63)' : 'Catch-Up (age 50+)';
+      html401k += row(catchUpLabel, '+ ' + fmt(catchUp401k));
+    }
+    html401k += row('<strong>Maximum Employee Contribution</strong>', '<strong>' + fmt(max401k) + '</strong>');
+    html401k += row('Total Limit (employee + employer)', fmt(L.totalLimit401k));
+    if (ytd > 0) {
+      html401k += row('YTD Contributions', fmt(ytd));
+      html401k += row('<strong>Remaining Room</strong>', '<strong>' + fmt(remaining401k) + '</strong>');
+    }
+    html401k += noteBox('These limits apply only if your employer offers a US-qualified 401(k)/403(b) plan. Foreign employers (e.g., Israeli companies) generally do not offer US retirement plans. If your employer does not offer a 401(k), these limits do not apply to you — see IRA options below.');
+    document.getElementById('body401k').innerHTML = html401k;
+    document.getElementById('badge401k').textContent = 'Eligible';
+    document.getElementById('badge401k').className = 'status-badge status-green';
+    totalMax += max401k;
+
+    // ===== Roth 401(k) =====
+    var htmlRoth401k = row('Employee Deferral Limit', fmt(base401k));
+    if (is50Plus) {
+      var catchUpLabel2 = isSuperCatchUp ? 'Super Catch-Up (ages 60–63)' : 'Catch-Up (age 50+)';
+      htmlRoth401k += row(catchUpLabel2, '+ ' + fmt(catchUp401k));
+    }
+    htmlRoth401k += row('<strong>Maximum Roth 401(k) Contribution</strong>', '<strong>' + fmt(max401k) + '</strong>');
+    htmlRoth401k += noteBox('Roth 401(k) contributions share the same limit as Traditional 401(k) — the ' + fmt(max401k) + ' limit is combined, not additive. No income phase-out applies. Available only if your employer offers this option.');
+    document.getElementById('bodyRoth401k').innerHTML = htmlRoth401k;
+    document.getElementById('badgeRoth401k').textContent = 'No Income Limit';
+    document.getElementById('badgeRoth401k').className = 'status-badge status-green';
+    // Don't add to totalMax — shared with 401k
+  } else {
+    document.getElementById('card401k').classList.add('hidden');
+    document.getElementById('cardRoth401k').classList.add('hidden');
+  }
+
+  // ===== Traditional IRA =====
+  var iraMax = L.iraBase + (is50Plus ? L.iraCatchUp : 0);
+  var tradDeductibleAmt = iraMax;
+  var tradStatus = 'full'; // full, partial, none
+
+  // Determine phase-out range
+  var tradRange = null;
+  if (status === 'mfj' || status === 'qss') {
+    if (hasWorkPlan) {
+      tradRange = L.tradPhaseOut.mfj_has_plan;
+    } else if (spouseHasPlan) {
+      tradRange = L.tradPhaseOut.mfj_no_plan_spouse_has;
+    }
+  } else if (status === 'mfs') {
+    if (hasWorkPlan || spouseHasPlan) {
+      tradRange = L.tradPhaseOut.mfs;
+    }
+  } else {
+    // single, hoh
+    if (hasWorkPlan) {
+      tradRange = L.tradPhaseOut[status];
+    }
+  }
+
+  if (tradRange) {
+    tradDeductibleAmt = tradDeductible(iraMax, magi, tradRange);
+    if (tradDeductibleAmt >= iraMax) tradStatus = 'full';
+    else if (tradDeductibleAmt > 0) tradStatus = 'partial';
+    else tradStatus = 'none';
+  }
+
+  var htmlTrad = row('Base Contribution Limit', fmt(L.iraBase));
+  if (is50Plus) {
+    htmlTrad += row('Catch-Up (age 50+)', '+ ' + fmt(L.iraCatchUp));
+  }
+  htmlTrad += row('<strong>Maximum Contribution</strong>', '<strong>' + fmt(iraMax) + '</strong>');
+
+  if (tradRange) {
+    htmlTrad += row('Phase-Out Range', fmt(tradRange[0]) + ' – ' + fmt(tradRange[1]));
+    htmlTrad += row('Your MAGI', fmt(magi));
+  }
+
+  if (tradStatus === 'full') {
+    htmlTrad += row('<strong>Deductible Amount</strong>', '<strong>' + fmt(iraMax) + '</strong>');
+    document.getElementById('badgeTradIRA').textContent = 'Fully Deductible';
+    document.getElementById('badgeTradIRA').className = 'status-badge status-green';
+  } else if (tradStatus === 'partial') {
+    htmlTrad += row('<strong>Deductible Amount</strong>', '<strong>' + fmt(tradDeductibleAmt) + '</strong>');
+    htmlTrad += row('Non-Deductible Portion', fmt(iraMax - tradDeductibleAmt));
+    document.getElementById('badgeTradIRA').textContent = 'Partially Deductible';
+    document.getElementById('badgeTradIRA').className = 'status-badge status-yellow';
+  } else {
+    htmlTrad += row('<strong>Deductible Amount</strong>', '<strong>$0</strong>');
+    document.getElementById('badgeTradIRA').textContent = 'Non-Deductible';
+    document.getElementById('badgeTradIRA').className = 'status-badge status-red';
+    htmlTrad += noteBox('You can still make non-deductible Traditional IRA contributions. Consider a <strong>Backdoor Roth</strong> strategy: contribute to a non-deductible Traditional IRA, then convert to Roth IRA.');
+  }
+
+  if (!tradRange) {
+    htmlTrad += noteBox('Neither you nor your spouse is covered by a workplace retirement plan, so your Traditional IRA contribution is <strong>fully deductible</strong> regardless of income.');
+  }
+
+  document.getElementById('bodyTradIRA').innerHTML = htmlTrad;
+  totalMax += iraMax;
+
+  // ===== Roth IRA =====
+  var rothRange;
+  if (status === 'mfj' || status === 'qss') {
+    rothRange = L.rothPhaseOut.mfj;
+  } else if (status === 'mfs') {
+    rothRange = L.rothPhaseOut.mfs;
+  } else {
+    rothRange = L.rothPhaseOut[status];
+  }
+
+  var rothMax = rothPartial(iraMax, magi, rothRange);
+  var rothStatus = rothMax >= iraMax ? 'full' : rothMax > 0 ? 'partial' : 'none';
+
+  var htmlRoth = row('Base Contribution Limit', fmt(L.iraBase));
+  if (is50Plus) {
+    htmlRoth += row('Catch-Up (age 50+)', '+ ' + fmt(L.iraCatchUp));
+  }
+  htmlRoth += row('Phase-Out Range', fmt(rothRange[0]) + ' – ' + fmt(rothRange[1]));
+  htmlRoth += row('Your MAGI', fmt(magi));
+
+  if (rothStatus === 'full') {
+    htmlRoth += row('<strong>Maximum Roth IRA Contribution</strong>', '<strong>' + fmt(iraMax) + '</strong>');
+    document.getElementById('badgeRothIRA').textContent = 'Fully Eligible';
+    document.getElementById('badgeRothIRA').className = 'status-badge status-green';
+  } else if (rothStatus === 'partial') {
+    htmlRoth += row('<strong>Reduced Roth IRA Contribution</strong>', '<strong>' + fmt(rothMax) + '</strong>');
+    document.getElementById('badgeRothIRA').textContent = 'Partial — Phase-Out';
+    document.getElementById('badgeRothIRA').className = 'status-badge status-yellow';
+    htmlRoth += noteBox('Your MAGI falls within the Roth IRA phase-out range. Your maximum contribution is reduced to <strong>' + fmt(rothMax) + '</strong>.');
+  } else {
+    htmlRoth += row('<strong>Maximum Roth IRA Contribution</strong>', '<strong>$0</strong>');
+    document.getElementById('badgeRothIRA').textContent = 'Phased Out';
+    document.getElementById('badgeRothIRA').className = 'status-badge status-red';
+    htmlRoth += noteBox('Your income exceeds the Roth IRA phase-out. Consider a <strong>Backdoor Roth</strong>: make a non-deductible Traditional IRA contribution, then convert to Roth. Note: the pro-rata rule may apply if you have existing pre-tax IRA balances.');
+  }
+
+  htmlRoth += noteBox('<strong>Important:</strong> Traditional IRA and Roth IRA share the same ' + fmt(iraMax) + ' annual limit. The total across both cannot exceed ' + fmt(iraMax) + '.');
+
+  document.getElementById('bodyRothIRA').innerHTML = htmlRoth;
+  // Don't add Roth to totalMax — shared with Traditional IRA
+
+  // ===== SEP IRA / Solo 401(k) =====
+  var sePlanType = document.querySelector('input[name="sePlanType"]:checked').value;
+
+  if (isSE && seIncome > 0 && sePlanType === 'sep') {
+    document.getElementById('cardSEP').classList.remove('hidden');
+    document.getElementById('cardSolo401k').classList.add('hidden');
+    // SEP: For self-employed, the effective contribution rate is 20% (not 25%).
+    // This is because the SEP contribution is itself a deduction from earned income,
+    // creating a circular calculation. The IRS resolves this: 25% / 1.25 = 20%.
+    // 25% applies only to W-2 employees of a business.
+    var seTax = seIncome * 0.9235 * 0.153;
+    var adjustedSE = seIncome - (seTax / 2);
+    var sepContrib = Math.min(adjustedSE * 0.20, L.sepMax);
+    sepContrib = Math.max(0, sepContrib);
+
+    var htmlSEP = row('Net Self-Employment Income', fmt(seIncome));
+    htmlSEP += row('Adjusted for ½ SE Tax', fmt(adjustedSE));
+    htmlSEP += row('Effective SE Rate (25% ÷ 1.25)', '20%');
+    htmlSEP += row('20% of Adjusted Income', fmt(adjustedSE * 0.20));
+    htmlSEP += row('Annual Maximum', fmt(L.sepMax));
+    htmlSEP += row('<strong>Your SEP IRA Limit</strong>', '<strong>' + fmt(sepContrib) + '</strong>');
+    htmlSEP += noteBox('For self-employed individuals, the effective SEP contribution rate is 20% (not 25%). The 25% rate applies to W-2 employees. The reduced rate accounts for the circular deduction: the SEP contribution itself reduces your earned income. SEP IRA contributions do not reduce your Traditional/Roth IRA limits but do count toward the overall annual additions limit.');
+
+    document.getElementById('bodySEP').innerHTML = htmlSEP;
+    document.getElementById('badgeSEP').textContent = 'Eligible';
+    document.getElementById('badgeSEP').className = 'status-badge status-green';
+    totalMax += sepContrib;
+  } else if (isSE && seIncome > 0 && sePlanType === 'solo401k') {
+    document.getElementById('cardSEP').classList.add('hidden');
+    document.getElementById('cardSolo401k').classList.remove('hidden');
+
+    // Solo 401(k): employee deferral + employer contribution
+    var employeeDeferral = max401k; // same as regular 401(k) deferral limits
+    var seTax = seIncome * 0.9235 * 0.153;
+    var adjustedSE = seIncome - (seTax / 2);
+    var employerContrib = Math.min(adjustedSE * 0.20, L.sepMax); // 20% effective rate for SE
+    employerContrib = Math.max(0, employerContrib);
+    var solo401kTotal = Math.min(employeeDeferral + employerContrib, L.totalLimit401k);
+
+    var htmlSolo = row('Employee Deferral Limit', fmt(base401k));
+    if (is50Plus) {
+      var soloCULabel = isSuperCatchUp ? 'Super Catch-Up (ages 60–63)' : 'Catch-Up (age 50+)';
+      htmlSolo += row(soloCULabel, '+ ' + fmt(catchUp401k));
+    }
+    htmlSolo += row('<strong>Max Employee Deferral</strong>', '<strong>' + fmt(employeeDeferral) + '</strong>');
+    htmlSolo += row('Net Self-Employment Income', fmt(seIncome));
+    htmlSolo += row('Adjusted for ½ SE Tax', fmt(adjustedSE));
+    htmlSolo += row('Employer Contribution (25% of adjusted)', fmt(employerContrib));
+    htmlSolo += row('Annual Total Limit', fmt(L.totalLimit401k));
+    htmlSolo += row('<strong>Your Solo 401(k) Limit</strong>', '<strong>' + fmt(solo401kTotal) + '</strong>');
+    htmlSolo += noteBox('Solo 401(k) is only available if you have no full-time W-2 employees other than your spouse. The employee deferral portion requires earned income from self-employment — W-2 income from a foreign employer does not qualify.');
+
+    document.getElementById('bodySolo401k').innerHTML = htmlSolo;
+    document.getElementById('badgeSolo401k').textContent = 'Eligible';
+    document.getElementById('badgeSolo401k').className = 'status-badge status-green';
+    totalMax += solo401kTotal;
+  } else {
+    document.getElementById('cardSEP').classList.add('hidden');
+    document.getElementById('cardSolo401k').classList.add('hidden');
+  }
+
+  // ===== SIMPLE IRA =====
+  if (hasSimple) {
+    document.getElementById('cardSIMPLE').classList.remove('hidden');
+    var simpleBase = L.simpleBase;
+    var simpleCatchUp = 0;
+    if (isSuperCatchUp && year >= 2025) {
+      simpleCatchUp = L.simpleSuperCatchUp;
+    } else if (is50Plus) {
+      simpleCatchUp = L.simpleCatchUp;
+    }
+    var simpleMax = simpleBase + simpleCatchUp;
+
+    var htmlSIMPLE = row('Employee Contribution Limit', fmt(simpleBase));
+    if (is50Plus) {
+      var simpleCULabel = isSuperCatchUp ? 'Super Catch-Up (ages 60–63)' : 'Catch-Up (age 50+)';
+      htmlSIMPLE += row(simpleCULabel, '+ ' + fmt(simpleCatchUp));
+    }
+    htmlSIMPLE += row('<strong>Maximum SIMPLE IRA Contribution</strong>', '<strong>' + fmt(simpleMax) + '</strong>');
+    htmlSIMPLE += noteBox('SIMPLE IRA participants generally cannot also contribute to a Traditional/Roth IRA on a pre-tax or Roth basis if covered by the SIMPLE plan, though the IRA contribution limit may still be available. The SIMPLE IRA deferral limit is separate from the 401(k) limit. Employer matching is additional.');
+
+    document.getElementById('bodySIMPLE').innerHTML = htmlSIMPLE;
+    document.getElementById('badgeSIMPLE').textContent = 'Eligible';
+    document.getElementById('badgeSIMPLE').className = 'status-badge status-green';
+    totalMax += simpleMax;
+  } else {
+    document.getElementById('cardSIMPLE').classList.add('hidden');
+  }
+
+  // ===== Combined Limit Note =====
+  var showCombinedNote = hasWorkPlan || (isSE && seIncome > 0 && sePlanType === 'solo401k');
+  if (showCombinedNote) {
+    document.getElementById('combinedLimitNote').classList.remove('hidden');
+    document.getElementById('combinedLimitAmt').textContent = fmt(max401k);
+    document.getElementById('combinedLimitYear').textContent = year;
+  } else {
+    document.getElementById('combinedLimitNote').classList.add('hidden');
+  }
+
+  // ===== 2026 Estimate Notice =====
+  document.getElementById('estimateNotice').classList.toggle('hidden', year !== 2026);
+
+  // ===== Summary =====
+  document.getElementById('totalMax').textContent = fmt(totalMax);
+  document.getElementById('results').style.display = 'block';
+
+  // Scroll to results
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+<div style="text-align:center;padding:20px 0;margin-top:30px;border-top:1px solid #ddd;color:#888;font-size:0.8rem">
+  © 2026 <a href="https://www.pstein.com" style="color:#4a7c3f;text-decoration:none">Philip Stein &amp; Associates</a> · Free US-Israel Tax Tools
+</div>
+</body>
+</html>

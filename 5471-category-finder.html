@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form 5471 Category Finder — PSA Tools</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #1a5276;
+  --blue-light: #2980b9;
+  --green: #6FB43F;
+  --green-dark: #5a9a2f;
+  --gray-bg: #f5f6f8;
+  --gray-border: #dde1e6;
+  --gray-text: #555;
+  --red: #c0392b;
+  --orange: #e67e22;
+  --white: #fff;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --radius: 8px;
+  --max-w: 720px;
+  --transition: 0.3s ease;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--gray-bg);
+  color: #333;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Header */
+.site-header {
+  background: var(--blue);
+  color: var(--white);
+  padding: 0;
+}
+.header-top {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 12px 24px 0;
+}
+.header-top a {
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+}
+.header-top a:hover { color: #fff; }
+.header-main {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 18px 24px 22px;
+  text-align: center;
+}
+.header-main h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.header-main .subtitle {
+  font-size: 14px;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+/* Progress bar */
+.progress-wrap {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 20px 24px 0;
+}
+.progress-bar-bg {
+  height: 6px;
+  background: var(--gray-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--blue-light);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.progress-label {
+  font-size: 12px;
+  color: var(--gray-text);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Card */
+.card-container {
+  max-width: var(--max-w);
+  margin: 20px auto 40px;
+  padding: 0 24px;
+}
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-border);
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Steps (question screens) */
+.step { display: none; animation: fadeIn 0.3s ease; }
+.step.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.step-number {
+  display: inline-block;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.question {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.question-help {
+  font-size: 14px;
+  color: var(--gray-text);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), transform 0.15s ease;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--blue);
+  color: var(--white);
+}
+.btn-primary:hover { background: var(--blue-light); }
+
+.btn-green {
+  background: var(--green);
+  color: var(--white);
+}
+.btn-green:hover { background: var(--green-dark); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--blue);
+  border: 2px solid var(--blue);
+}
+.btn-outline:hover { background: var(--blue); color: var(--white); }
+
+.btn-back {
+  background: transparent;
+  color: var(--gray-text);
+  border: 1px solid var(--gray-border);
+  font-size: 14px;
+  padding: 8px 18px;
+}
+.btn-back:hover { background: var(--gray-bg); }
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.choice-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 14px 20px;
+  border: 2px solid var(--gray-border);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.choice-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: #f0f6fa;
+}
+
+/* Ownership radio options */
+.radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 2px solid var(--gray-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.radio-option:hover, .radio-option.selected {
+  border-color: var(--blue);
+  background: #f0f6fa;
+}
+.radio-option input { display: none; }
+.radio-dot {
+  width: 20px; height: 20px;
+  border: 2px solid var(--gray-border);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+.radio-option.selected .radio-dot {
+  border-color: var(--blue);
+}
+.radio-option.selected .radio-dot::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 10px; height: 10px;
+  background: var(--blue);
+  border-radius: 50%;
+}
+
+/* Nav row */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+}
+
+/* Stop screens */
+.stop-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+.stop-message {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.stop-detail {
+  font-size: 14px;
+  color: var(--gray-text);
+  margin-bottom: 24px;
+}
+
+/* Results */
+.results-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.results-header h2 {
+  font-size: 24px;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+.results-header p {
+  color: var(--gray-text);
+  font-size: 14px;
+}
+
+.category-card {
+  border: 1px solid var(--gray-border);
+  border-left: 4px solid var(--green);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  background: #fafffe;
+}
+.category-card h3 {
+  color: var(--blue);
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+.category-card .cat-ref {
+  font-size: 13px;
+  color: var(--gray-text);
+  margin-bottom: 8px;
+}
+.category-card .cat-desc {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.category-card .cat-schedules {
+  font-size: 13px;
+  background: var(--gray-bg);
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: var(--gray-text);
+}
+.category-card .cat-schedules strong { color: #333; }
+
+.info-box {
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.info-box-orange {
+  background: #fef5ec;
+  border: 1px solid #f5cba7;
+  color: #7e5109;
+}
+.info-box-blue {
+  background: #eaf2f8;
+  border: 1px solid #aed6f1;
+  color: #1b4f72;
+}
+.info-box-red {
+  background: #fdedec;
+  border: 1px solid #f5b7b1;
+  color: #78281f;
+}
+.info-box strong { display: block; margin-bottom: 4px; }
+
+.results-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Disclaimer */
+.disclaimer {
+  max-width: var(--max-w);
+  margin: 0 auto 40px;
+  padding: 0 24px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Print */
+@media print {
+  body { background: #fff; }
+  .site-header { background: #333; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .progress-wrap, .btn-back, .results-actions, .header-top, .disclaimer { display: none !important; }
+  .card { box-shadow: none; border: 1px solid #ccc; }
+  .category-card { break-inside: avoid; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .header-main h1 { font-size: 21px; }
+  .card { padding: 24px 18px; }
+  .question { font-size: 17px; }
+  .btn-row { flex-direction: column; }
+  .choice-btn { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div style="text-align:center;padding:20px 0 10px;border-bottom:2px solid #4a7c3f;margin-bottom:20px;background:#fff">
+  <img src="assets/psa-logo.jpg" alt="Philip Stein &amp; Associates" style="height:60px;margin-bottom:8px"><br>
+  <div style="color:#4a7c3f;font-size:0.85rem;font-weight:600">Philip Stein &amp; Associates — Free Tax Tools</div>
+</div>
+
+<header class="site-header">
+  <div class="header-top"><a href="index.html">&larr; All Tools</a></div>
+  <div class="header-main">
+    <h1>Form 5471 Category Finder</h1>
+    <p class="subtitle">Philip Stein &amp; Associates &mdash; Internal Tool</p>
+  </div>
+</header>
+
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+</div>
+
+<div class="card-container">
+  <div class="card" id="cardArea">
+
+    <!-- Q1 -->
+    <div class="step active" data-step="q1">
+      <span class="step-number">Question 1</span>
+      <div class="question">Are you a US person?</div>
+      <div class="question-help">A US person includes a US citizen, US resident alien, domestic corporation, domestic partnership, or domestic trust/estate.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q1','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q1','no')">No</button>
+      </div>
+    </div>
+
+    <!-- Stop: not US person -->
+    <div class="step" data-step="stop-nousper">
+      <div class="stop-icon">&#9432;</div>
+      <div class="stop-message">No Filing Requirement</div>
+      <div class="stop-detail">Form 5471 is only required for US persons. Based on your answer, you do not have a Form 5471 filing requirement.</div>
+      <button class="btn btn-primary" onclick="startOver()">Start Over</button>
+    </div>
+
+    <!-- Q2 -->
+    <div class="step" data-step="q2">
+      <span class="step-number">Question 2</span>
+      <div class="question">Do you have any ownership interest in a foreign corporation?</div>
+      <div class="question-help">This includes direct, indirect, or constructive ownership of stock in a foreign corporation.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q2','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q2','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="step" data-step="q3">
+      <span class="step-number">Question 3</span>
+      <div class="question">Are you an officer or director of a foreign corporation?</div>
+      <div class="question-help">This applies even if you have no ownership interest in the corporation.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q3','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q3','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Stop: no ownership, not officer -->
+    <div class="step" data-step="stop-noconnection">
+      <div class="stop-icon">&#9432;</div>
+      <div class="stop-message">No Filing Requirement Indicated</div>
+      <div class="stop-detail">Based on your answers, Form 5471 does not appear to be required. You have no ownership interest and are not an officer or director of a foreign corporation.</div>
+      <button class="btn btn-primary" onclick="startOver()">Start Over</button>
+    </div>
+
+    <!-- Q3b -->
+    <div class="step" data-step="q3b">
+      <span class="step-number">Question 3b</span>
+      <div class="question">Does any US person own 10% or more of the foreign corporation's stock?</div>
+      <div class="question-help">By vote or value. This includes any US shareholder, not just you.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q3b','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q3b','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Stop: officer but no 10% US shareholder -->
+    <div class="step" data-step="stop-noten">
+      <div class="stop-icon">&#9432;</div>
+      <div class="stop-message">No Filing Requirement Indicated</div>
+      <div class="stop-detail">No Form 5471 required based on these facts. Category 2 only applies when a US person owns 10% or more of the foreign corporation.</div>
+      <button class="btn btn-primary" onclick="startOver()">Start Over</button>
+    </div>
+
+    <!-- Q4 -->
+    <div class="step" data-step="q4">
+      <span class="step-number">Question 4</span>
+      <div class="question">What is your ownership percentage of the foreign corporation?</div>
+      <div class="question-help">Include direct, indirect, and constructive ownership combined (by vote or value).</div>
+      <div class="radio-group" id="ownershipGroup">
+        <label class="radio-option" onclick="selectRadio(this,'lt10')">
+          <input type="radio" name="ownership" value="lt10">
+          <span class="radio-dot"></span>
+          <span>Less than 10%</span>
+        </label>
+        <label class="radio-option" onclick="selectRadio(this,'10to50')">
+          <input type="radio" name="ownership" value="10to50">
+          <span class="radio-dot"></span>
+          <span>10% to 50%</span>
+        </label>
+        <label class="radio-option" onclick="selectRadio(this,'gt50')">
+          <input type="radio" name="ownership" value="gt50">
+          <span class="radio-dot"></span>
+          <span>More than 50%</span>
+        </label>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="q4Next" onclick="answer('q4', selectedOwnership)" disabled>Continue</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="step" data-step="q5">
+      <span class="step-number">Question 5</span>
+      <div class="question">Did you acquire stock during the tax year that brought you to 10% or more ownership?</div>
+      <div class="question-help">This includes any acquisition (purchase, gift, inheritance, etc.) that caused you to meet or exceed the 10% threshold.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q5','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q5','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="step" data-step="q6">
+      <span class="step-number">Question 6</span>
+      <div class="question">Did you dispose of stock during the tax year that brought you below 10% ownership?</div>
+      <div class="question-help">This includes any disposition (sale, transfer, etc.) that reduced your ownership below the 10% threshold.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q6','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q6','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="step" data-step="q7">
+      <span class="step-number">Question 7</span>
+      <div class="question">Do you own more than 50% of the foreign corporation?</div>
+      <div class="question-help">By vote or value, directly or indirectly. This determines whether you have control of the corporation.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q7','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q7','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="step" data-step="q8">
+      <span class="step-number">Question 8</span>
+      <div class="question">Is the foreign corporation a Controlled Foreign Corporation (CFC)?</div>
+      <div class="question-help">A CFC is a foreign corporation in which US shareholders (each owning &ge;10% by vote or value) collectively own more than 50% by vote or value.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q8','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q8','no')">No</button>
+        <button class="choice-btn" onclick="answer('q8','unsure')">Not Sure</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="step" data-step="q9">
+      <span class="step-number">Question 9</span>
+      <div class="question">Is the foreign corporation a Specified Foreign Corporation (SFC)?</div>
+      <div class="question-help">An SFC is either (a) a CFC, or (b) a foreign corporation that has at least one domestic corporate shareholder owning 10% or more.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q9','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q9','no')">No</button>
+        <button class="choice-btn" onclick="answer('q9','unsure')">Not Sure</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="step" data-step="q10">
+      <span class="step-number">Question 10</span>
+      <div class="question">Are you an officer or director of this foreign corporation?</div>
+      <div class="question-help">If yes, and any US person owns 10% or more, Category 2 may apply.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q10','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q10','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Q10b (only if officer/director=yes): does any US person own ≥10%? -->
+    <div class="step" data-step="q10b">
+      <span class="step-number">Question 10b</span>
+      <div class="question">Does any US person own 10% or more of this foreign corporation's stock?</div>
+      <div class="question-help">By vote or value. This includes any US shareholder, not just you.</div>
+      <div class="btn-row">
+        <button class="choice-btn" onclick="answer('q10b','yes')">Yes</button>
+        <button class="choice-btn" onclick="answer('q10b','no')">No</button>
+      </div>
+      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
+    </div>
+
+    <!-- Results -->
+    <div class="step" data-step="results" id="resultsStep"></div>
+
+  </div>
+</div>
+
+<div class="disclaimer" id="disclaimerText">
+  <strong>Disclaimer:</strong> This tool is for informational purposes only and does not constitute tax or legal advice. The determination of Form 5471 filing requirements depends on specific facts and circumstances. Constructive ownership rules under IRC &sect;318 (as modified by IRC &sect;958(b)) are complex and may affect your filing obligations. Always consult a qualified tax professional for advice specific to your situation.
+</div>
+
+<script>
+(function(){
+  const answers = {};
+  const history = [];
+  let selectedOwnership = null;
+
+  // Make selectedOwnership accessible to inline handlers
+  window.__getOwnership = () => selectedOwnership;
+  Object.defineProperty(window, 'selectedOwnership', { get: () => selectedOwnership });
+
+  const totalSteps = 10;
+
+  const stepOrder = ['q1','q2','q3','q3b','q4','q5','q6','q7','q8','q9','q10','q10b'];
+
+  function showStep(name) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    const el = document.querySelector('[data-step="'+name+'"]');
+    if (el) el.classList.add('active');
+    updateProgress(name);
+  }
+
+  function updateProgress(name) {
+    const stops = ['stop-nousper','stop-noconnection','stop-noten','results'];
+    if (stops.includes(name)) {
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('progressLabel').textContent = 'Complete';
+      return;
+    }
+    const idx = stepOrder.indexOf(name);
+    if (idx === -1) return;
+    const pct = Math.round(((idx + 1) / totalSteps) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = 'Step ' + (idx+1) + ' of ~' + totalSteps;
+  }
+
+  function answer(step, value) {
+    answers[step] = value;
+    history.push(step);
+
+    const next = getNext(step, value);
+    if (next === 'results') {
+      renderResults();
+    }
+    showStep(next);
+  }
+
+  function getNext(step, value) {
+    switch(step) {
+      case 'q1':
+        return value === 'yes' ? 'q2' : 'stop-nousper';
+      case 'q2':
+        return value === 'yes' ? 'q4' : 'q3';
+      case 'q3':
+        return value === 'yes' ? 'q3b' : 'stop-noconnection';
+      case 'q3b':
+        if (value === 'yes') {
+          // Category 2 flagged, go to results directly
+          return 'results';
+        }
+        return 'stop-noten';
+      case 'q4':
+        return 'q5';
+      case 'q5':
+        return 'q6';
+      case 'q6':
+        return 'q7';
+      case 'q7':
+        return 'q8';
+      case 'q8':
+        return 'q9';
+      case 'q9':
+        return 'q10';
+      case 'q10':
+        if (value === 'yes') return 'q10b';
+        return 'results';
+      case 'q10b':
+        return 'results';
+      default:
+        return 'results';
+    }
+  }
+
+  function getCategories() {
+    const cats = [];
+    const own = answers.q4;
+    const owns10 = (own === '10to50' || own === 'gt50');
+
+    // Came from Q3b path (no ownership, but officer/director)
+    if (!answers.q4 && answers.q3b === 'yes') {
+      cats.push(2);
+      return cats;
+    }
+
+    // Category 1: owns ≥10% AND SFC
+    if (owns10 && (answers.q9 === 'yes' || (answers.q9 === 'unsure' && answers.q8 === 'yes'))) {
+      cats.push(1);
+    }
+
+    // Category 2: officer/director AND any US person owns ≥10%
+    if (answers.q10 === 'yes' && answers.q10b === 'yes') {
+      cats.push(2);
+    }
+
+    // Category 3: acquisition or disposition crossing 10%
+    if (answers.q5 === 'yes' || answers.q6 === 'yes') {
+      cats.push(3);
+    }
+
+    // Category 4: >50% ownership
+    if (own === 'gt50' || answers.q7 === 'yes') {
+      cats.push(4);
+    }
+
+    // Category 5: owns ≥10% AND CFC
+    if (owns10 && (answers.q8 === 'yes')) {
+      cats.push(5);
+    }
+
+    return cats;
+  }
+
+  const categoryInfo = {
+    1: {
+      name: 'Category 1 — US Shareholder of a Specified Foreign Corporation (SFC)',
+      ref: 'IRC §6038(a), added by the Tax Cuts and Jobs Act (TCJA)',
+      desc: 'Must file if you are a US person who owns 10% or more (by vote or value) of a Specified Foreign Corporation.',
+      schedules: 'A, B, E, F, G-1, H, I-1, J, P, Q, R'
+    },
+    2: {
+      name: 'Category 2 — Officer or Director',
+      ref: 'IRC §6038(a)',
+      desc: 'Must file if you are a US person who is an officer or director of a foreign corporation in which any US person owns 10% or more of the stock (by vote or value).',
+      schedules: 'A, B, F, G-1'
+    },
+    3: {
+      name: 'Category 3 — Acquisitions and Dispositions',
+      ref: 'IRC §6046',
+      desc: 'Must file if you are a US person who acquires stock bringing ownership to 10% or more, or disposes of stock bringing ownership below 10%. Also applies to additional acquisitions while already at 10% or more.',
+      schedules: 'A, B, O'
+    },
+    4: {
+      name: 'Category 4 — Control',
+      ref: 'IRC §6038(a)',
+      desc: 'Must file if you are a US person who controls a foreign corporation (more than 50% ownership by vote or value).',
+      schedules: 'A, B, C, E, F, G-1, H, I-1, J, P'
+    },
+    5: {
+      name: 'Category 5 — CFC Shareholder',
+      ref: 'IRC §6038(a)',
+      desc: 'Must file if you are a US shareholder (10% or more by vote or value) of a Controlled Foreign Corporation (CFC).',
+      schedules: 'A, B, C, E, F, G-1, H, I-1, J, P, Q, R'
+    }
+  };
+
+  function renderResults() {
+    const cats = getCategories();
+    const el = document.getElementById('resultsStep');
+    let html = '';
+
+    if (cats.length === 0) {
+      html += '<div class="stop-icon">&#9432;</div>';
+      html += '<div class="stop-message">No Categories Identified</div>';
+      html += '<div class="stop-detail">Based on your answers, no Form 5471 filing category appears to apply. However, constructive ownership rules are complex — consult a tax professional if you are unsure.</div>';
+      html += '<button class="btn btn-primary" onclick="startOver()">Start Over</button>';
+    } else {
+      html += '<div class="results-header">';
+      html += '<h2>Your Results</h2>';
+      html += '<p>' + cats.length + ' filing categor' + (cats.length === 1 ? 'y' : 'ies') + ' identified</p>';
+      html += '</div>';
+
+      cats.forEach(c => {
+        const info = categoryInfo[c];
+        html += '<div class="category-card">';
+        html += '<h3>' + info.name + '</h3>';
+        html += '<div class="cat-ref">' + info.ref + '</div>';
+        html += '<div class="cat-desc">' + info.desc + '</div>';
+        html += '<div class="cat-schedules"><strong>Required Schedules:</strong> ' + info.schedules + '</div>';
+        html += '</div>';
+      });
+
+      // Penalty info
+      html += '<div class="info-box info-box-red">';
+      html += '<strong>Penalties for Failure to File</strong>';
+      html += '$10,000 per Form 5471 per year for failure to file. An additional $10,000 for each 30-day period (or fraction thereof) after IRS notice, up to $50,000 in additional penalties.';
+      html += '</div>';
+
+      // Notes
+      html += '<div class="info-box info-box-blue">';
+      html += '<strong>Important Notes</strong>';
+      html += 'Multiple categories can apply simultaneously. File one Form 5471 per foreign corporation, checking all applicable category boxes on the form.';
+      html += '</div>';
+
+      html += '<div class="info-box info-box-orange">';
+      html += '<strong>Constructive Ownership</strong>';
+      html += 'Constructive ownership rules (IRC &sect;318, as modified by IRC &sect;958(b)) apply — you may own stock indirectly through family members, partnerships, corporations, or trusts. These rules can significantly affect your filing obligations.';
+      html += '</div>';
+
+      // Answer summary
+      html += '<details style="margin-top:16px;font-size:14px;color:#555;"><summary style="cursor:pointer;font-weight:600;">View Your Answers</summary><ul style="margin-top:8px;padding-left:20px;">';
+      const labels = {
+        q1: 'US person',
+        q2: 'Ownership interest',
+        q3: 'Officer/director (no ownership)',
+        q3b: 'Any US person owns ≥10%',
+        q4: 'Ownership percentage',
+        q5: 'Acquired stock to ≥10%',
+        q6: 'Disposed stock to <10%',
+        q7: 'Owns >50%',
+        q8: 'CFC status',
+        q9: 'SFC status',
+        q10: 'Officer/director',
+        q10b: 'Any US person owns ≥10%'
+      };
+      for (const key of stepOrder) {
+        if (answers[key] !== undefined) {
+          html += '<li><strong>' + labels[key] + ':</strong> ' + answers[key] + '</li>';
+        }
+      }
+      html += '</ul></details>';
+
+      html += '<div class="results-actions">';
+      html += '<button class="btn btn-primary" onclick="window.print()">Print Results</button>';
+      html += '<button class="btn btn-outline" onclick="startOver()">Start Over</button>';
+      html += '</div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  function goBack() {
+    if (history.length === 0) return;
+    const prev = history.pop();
+    delete answers[prev];
+    // Reset radio selection if going back to q4
+    if (prev === 'q4') {
+      selectedOwnership = null;
+      document.getElementById('q4Next').disabled = true;
+      document.querySelectorAll('#ownershipGroup .radio-option').forEach(o => o.classList.remove('selected'));
+    }
+    showStep(prev);
+  }
+
+  function selectRadio(el, value) {
+    document.querySelectorAll('#ownershipGroup .radio-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedOwnership = value;
+    document.getElementById('q4Next').disabled = false;
+  }
+
+  function startOver() {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    history.length = 0;
+    selectedOwnership = null;
+    const nextBtn = document.getElementById('q4Next');
+    if (nextBtn) nextBtn.disabled = true;
+    document.querySelectorAll('#ownershipGroup .radio-option').forEach(o => o.classList.remove('selected'));
+    showStep('q1');
+  }
+
+  // Expose to global scope for inline handlers
+  window.answer = answer;
+  window.goBack = goBack;
+  window.selectRadio = selectRadio;
+  window.startOver = startOver;
+
+  // Init
+  showStep('q1');
+})();
+</script>
+
+<div style="text-align:center;padding:20px 0;margin-top:30px;border-top:1px solid #ddd;color:#888;font-size:0.8rem">
+  © 2026 <a href="https://www.pstein.com" style="color:#4a7c3f;text-decoration:none">Philip Stein &amp; Associates</a> · Free US-Israel Tax Tools
+</div>
+</body>
+</html>

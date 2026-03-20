@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Tax & Foreign Gift Filing Wizard — PSA Tools</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #1a5276;
+  --blue-light: #2980b9;
+  --blue-bg: #eaf2f8;
+  --green: #27ae60;
+  --green-bg: #eafaf1;
+  --red: #c0392b;
+  --red-bg: #fdedec;
+  --orange: #e67e22;
+  --orange-bg: #fef5e7;
+  --gray-50: #f8f9fa;
+  --gray-100: #f0f2f5;
+  --gray-200: #e0e4e8;
+  --gray-400: #9ca3af;
+  --gray-600: #6b7280;
+  --gray-800: #1f2937;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+  --radius: 8px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--gray-100);
+  color: var(--gray-800);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+header {
+  background: var(--blue);
+  color: #fff;
+  padding: 1.25rem 2rem;
+  box-shadow: var(--shadow);
+}
+header .top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: 0 auto;
+}
+header .home-link {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+header .home-link:hover { color: #fff; }
+header h1 { font-size: 1.4rem; font-weight: 700; margin-top: 0.25rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+header .subtitle { font-size: 0.85rem; opacity: 0.8; max-width: 800px; margin: 0.15rem auto 0; }
+
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Progress bar */
+.progress-bar-wrap {
+  background: var(--gray-200);
+  border-radius: 100px;
+  height: 8px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: var(--blue);
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+/* Navigation */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue-light); }
+.btn-secondary { background: var(--gray-200); color: var(--gray-800); }
+.btn-secondary:hover { background: var(--gray-400); color: #fff; }
+.btn-start { background: var(--blue); color: #fff; font-size: 1rem; padding: 0.75rem 2rem; }
+.btn-start:hover { background: var(--blue-light); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Question styling */
+.question-label {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 1rem;
+}
+.helper-text {
+  font-size: 0.85rem;
+  color: var(--gray-600);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* Option buttons */
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.option-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  line-height: 1.4;
+  color: var(--gray-800);
+}
+.option-btn:hover { border-color: var(--blue-light); background: var(--blue-bg); }
+.option-btn.selected { border-color: var(--blue); background: var(--blue-bg); font-weight: 600; }
+.option-btn .option-letter {
+  display: inline-block;
+  width: 1.6rem;
+  height: 1.6rem;
+  line-height: 1.6rem;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--gray-200);
+  color: var(--gray-800);
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+.option-btn.selected .option-letter { background: var(--blue); color: #fff; }
+.option-btn-inner { display: flex; align-items: center; }
+
+/* Select */
+.select-wrap { margin-bottom: 0.5rem; }
+.select-wrap select {
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  background: #fff;
+  color: var(--gray-800);
+  min-width: 180px;
+}
+.select-wrap select:focus { border-color: var(--blue); outline: none; }
+
+/* Currency input */
+.currency-input-wrap {
+  position: relative;
+  display: inline-block;
+}
+.currency-input-wrap .prefix {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-600);
+  font-weight: 600;
+}
+.currency-input {
+  padding: 0.6rem 1rem 0.6rem 1.75rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  width: 220px;
+}
+.currency-input:focus { border-color: var(--blue); outline: none; }
+
+/* Result cards */
+.result-section { margin-bottom: 1.5rem; }
+.result-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.result-section ul { padding-left: 1.25rem; }
+.result-section li { margin-bottom: 0.35rem; font-size: 0.92rem; }
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.badge-required { background: var(--red-bg); color: var(--red); }
+.badge-not-required { background: var(--green-bg); color: var(--green); }
+.badge-maybe { background: var(--orange-bg); color: var(--orange); }
+
+.info-box {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.info-box-blue { background: var(--blue-bg); border-left: 4px solid var(--blue); }
+.info-box-green { background: var(--green-bg); border-left: 4px solid var(--green); }
+.info-box-red { background: var(--red-bg); border-left: 4px solid var(--red); }
+.info-box-orange { background: var(--orange-bg); border-left: 4px solid var(--orange); }
+.info-box strong { display: block; margin-bottom: 0.25rem; }
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+@media (max-width: 600px) { .result-grid { grid-template-columns: 1fr; } }
+
+.result-card {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+.result-card h4 { font-size: 1rem; margin-bottom: 0.5rem; }
+
+/* Disclaimer */
+.disclaimer {
+  font-size: 0.78rem;
+  color: var(--gray-600);
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-top: 1px solid var(--gray-200);
+  margin-top: 2rem;
+  line-height: 1.6;
+}
+
+/* Print */
+@media print {
+  body { background: #fff; }
+  header { box-shadow: none; }
+  .btn, .nav-row { display: none !important; }
+  .progress-bar-wrap { display: none; }
+  .card { box-shadow: none; border: 1px solid var(--gray-200); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  header { padding: 1rem; }
+  header h1 { font-size: 1.15rem; }
+  .card { padding: 1.25rem; }
+  .container { margin: 1rem auto; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+<div style="text-align:center;padding:20px 0 10px;border-bottom:2px solid #4a7c3f;margin-bottom:20px;background:#fff">
+  <img src="assets/psa-logo.jpg" alt="Philip Stein &amp; Associates" style="height:60px;margin-bottom:8px"><br>
+  <div style="color:#4a7c3f;font-size:0.85rem;font-weight:600">Philip Stein &amp; Associates — Free Tax Tools</div>
+</div>
+
+<header>
+  <div class="top-row">
+    <a href="index.html" class="home-link">&larr; All Tools</a>
+  </div>
+  <h1>Gift Tax &amp; Foreign Gift Filing Wizard</h1>
+  <p class="subtitle">Philip Stein &amp; Associates &mdash; Internal Tool</p>
+</header>
+
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<div class="disclaimer">
+  <strong>Disclaimer:</strong> This tool is for informational purposes only and does not constitute tax or legal advice.
+  Consult a qualified tax professional for guidance specific to your situation. Thresholds and exemptions are subject to change by the IRS.
+  <br>&copy; Philip Stein &amp; Associates
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  /* ── Constants ─────────────────────────────────────────────── */
+  const ANNUAL_EXCLUSION = { 2024: 18000, 2025: 19000, 2026: 19000 };
+  const SPOUSAL_LIMIT    = { 2024: 185000, 2025: 190000, 2026: 195000 };
+  const LIFETIME_EXEMPT  = { 2024: 13610000, 2025: 13990000, 2026: 7000000 };
+  const FOREIGN_CORP_THRESHOLD = { 2024: 18567, 2025: 19570, 2026: 19570 };
+  const FOREIGN_INDIV_THRESHOLD = 100000;
+
+  function fmt(n) { return n.toLocaleString("en-US"); }
+  function fmtUSD(n) { return "$" + fmt(n); }
+
+  /* ── State ─────────────────────────────────────────────────── */
+  let state = {
+    step: "start",
+    history: [],
+    branch: null,
+    year: null,
+    answers: {},
+    results: { form709: null, form3520: null, reasons: [], notes: [] }
+  };
+
+  const app = document.getElementById("app");
+
+  function go(step, pushHistory) {
+    if (pushHistory !== false) state.history.push(state.step);
+    state.step = step;
+    render();
+  }
+
+  function goBack() {
+    if (state.history.length) {
+      state.step = state.history.pop();
+      render();
+    }
+  }
+
+  function restart() {
+    state = { step: "start", history: [], branch: null, year: null, answers: {}, results: { form709: null, form3520: null, reasons: [], notes: [] } };
+    render();
+  }
+
+  /* ── Render helpers ────────────────────────────────────────── */
+  function progressPct() {
+    const steps = {
+      A: { "a1":1,"a2":2,"a3":3,"a4":4,"a4b":4.5,"a5":5,"a6":6 },
+      B: { "b1":1,"b2":2,"b3":3,"b3_input":3.5,"b4":4,"b5":5,"b5_input":5.5,"b6":6,"b_result":7 },
+      C: { "c1":1,"c2":2 }
+    };
+    const b = state.branch;
+    if (!b || !steps[b]) return 0;
+    const s = steps[b];
+    const cur = s[state.step.replace(/^[abc]_?/i, state.step)] || s[state.step] || 0;
+    const max = Math.max(...Object.values(s));
+    return Math.round((cur / max) * 100);
+  }
+
+  function getProgress() {
+    const map = {
+      a1:15, a2:25, a3:40, a4:55, a4b:65, a5:75, a6:90, a_result:100,
+      b1:15, b2:25, b3:35, b3_input:45, b4:50, b5:60, b5_input:70, b6:80, b_result:100,
+      c1:30, c2:60,
+      result:100
+    };
+    return map[state.step] || 0;
+  }
+
+  function renderProgressBar() {
+    const pct = getProgress();
+    if (!pct) return "";
+    return `<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>`;
+  }
+
+  function optionBtn(letter, text, onclick) {
+    return `<button class="option-btn" onclick="${onclick}"><div class="option-btn-inner"><span class="option-letter">${letter}</span><span>${text}</span></div></button>`;
+  }
+
+  function navRow(backBtn, nextBtn) {
+    const back = backBtn !== false ? `<button class="btn btn-secondary" onclick="wizardBack()">&larr; Back</button>` : `<span></span>`;
+    const next = nextBtn || "";
+    return `<div class="nav-row">${back}${next}</div>`;
+  }
+
+  /* ── Render steps ──────────────────────────────────────────── */
+  function render() {
+    const s = state.step;
+    let html = "";
+
+    if (s === "start") {
+      html = renderStart();
+    } else if (s === "a1") { html = renderA1(); }
+    else if (s === "a1_stop") { html = renderA1Stop(); }
+    else if (s === "a2") { html = renderA2(); }
+    else if (s === "a3") { html = renderA3(); }
+    else if (s === "a4") { html = renderA4(); }
+    else if (s === "a4b") { html = renderA4b(); }
+    else if (s === "a5") { html = renderA5(); }
+    else if (s === "a6") { html = renderA6(); }
+    else if (s === "a_no709") { html = renderANo709(); }
+    else if (s === "b1") { html = renderB1(); }
+    else if (s === "b1_stop") { html = renderB1Stop(); }
+    else if (s === "b2") { html = renderB2(); }
+    else if (s === "b3_input") { html = renderB3Input(); }
+    else if (s === "b4") { html = renderB4(); }
+    else if (s === "b5") { html = renderB5(); }
+    else if (s === "b5_input") { html = renderB5Input(); }
+    else if (s === "b6") { html = renderB6(); }
+    else if (s === "c1") { html = renderC1(); }
+    else if (s === "result") { html = renderResult(); }
+    else { html = renderStart(); }
+
+    app.innerHTML = html;
+    app.querySelector(".card")?.classList.add("fade-in");
+  }
+
+  /* ── Start ──────────────────────────────────────────────────── */
+  function renderStart() {
+    return `<div class="card">
+      <p class="question-label">What is your situation?</p>
+      <p class="helper-text">Select the option that best describes your filing question.</p>
+      <div class="option-group">
+        ${optionBtn("A", "I <strong>gave</strong> a gift and want to know if I need to file <strong>Form 709</strong> (Gift Tax Return)", "wizardBranch('A')")}
+        ${optionBtn("B", "I <strong>received</strong> a gift from a <strong>foreign person</strong> and want to know if I need to file <strong>Form 3520</strong>", "wizardBranch('B')")}
+        ${optionBtn("C", "I'm not sure &mdash; help me figure it out", "wizardBranch('C')")}
+      </div>
+    </div>`;
+  }
+
+  /* ── Branch C (triage) ──────────────────────────────────────── */
+  function renderC1() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Did you give a gift to someone, or receive a gift?</p>
+      <div class="option-group">
+        ${optionBtn("A", "I <strong>gave</strong> a gift", "wizardC1('gave')")}
+        ${optionBtn("B", "I <strong>received</strong> a gift", "wizardC1('received')")}
+        ${optionBtn("C", "Both &mdash; I gave and received gifts", "wizardC1('both')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  /* ── Branch A: Form 709 ─────────────────────────────────────── */
+  function renderA1() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Are you a US citizen or US resident (for gift tax purposes)?</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes", "wizardA1('yes')")}
+        ${optionBtn("B", "No", "wizardA1('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderA1Stop() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <div class="info-box info-box-orange">
+        <strong>Non-Resident Alien Gift Tax Rules</strong>
+        Non-residents are subject to US gift tax only on transfers of US-situated property (e.g., US real estate, tangible property located in the US). Different rules and thresholds apply. Consult your tax advisor for guidance specific to your situation.
+      </div>
+      ${navRow(true, `<button class="btn btn-start" onclick="wizardRestart()">Start Over</button>`)}
+    </div>`;
+  }
+
+  function renderA2() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">What tax year are you asking about?</p>
+      <div class="select-wrap">
+        <select id="yearSelect" onchange="wizardA2()">
+          <option value="">Select year&hellip;</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
+      </div>
+      <p class="helper-text" id="yearInfo" style="margin-top:0.75rem"></p>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderA3() {
+    const yr = state.year;
+    const excl = ANNUAL_EXCLUSION[yr];
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Did you give more than ${fmtUSD(excl)} to any single person during ${yr}?</p>
+      <p class="helper-text">The annual gift tax exclusion for ${yr} is ${fmtUSD(excl)} per recipient.</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes &mdash; I gave more than " + fmtUSD(excl) + " to at least one person", "wizardA3('yes')")}
+        ${optionBtn("B", "No &mdash; all gifts were " + fmtUSD(excl) + " or less per person", "wizardA3('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderA4() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Did you give any amount to a non-citizen spouse?</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes", "wizardA4('yes')")}
+        ${optionBtn("B", "No", "wizardA4('no')")}
+        ${optionBtn("C", "Not married / spouse is a US citizen", "wizardA4('na')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderA4b() {
+    const yr = state.year;
+    const limit = SPOUSAL_LIMIT[yr] || 190000;
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Was the total amount given to your non-citizen spouse more than ${fmtUSD(limit)} during ${yr}?</p>
+      <p class="helper-text">The annual exclusion for gifts to a non-citizen spouse in ${yr} is ${fmtUSD(limit)}.</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes &mdash; more than " + fmtUSD(limit), "wizardA4b('yes')")}
+        ${optionBtn("B", "No &mdash; " + fmtUSD(limit) + " or less", "wizardA4b('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderA5() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Did any of the following apply to your gifts?</p>
+      <p class="helper-text">Select "Yes" if any of these situations occurred:</p>
+      <ul style="margin: 0 0 1rem 1.25rem; font-size:0.92rem;">
+        <li>You made a gift to a <strong>trust</strong></li>
+        <li>You and your spouse want to <strong>split gifts</strong> (elect gift splitting)</li>
+        <li>You gave a <strong>future interest</strong> gift (the recipient can't use it immediately)</li>
+        <li>You gave to a <strong>529 plan</strong> and want to use 5-year averaging</li>
+      </ul>
+      <div class="option-group">
+        ${optionBtn("A", "Yes &mdash; one or more apply", "wizardA5('yes')")}
+        ${optionBtn("B", "No &mdash; none of these apply", "wizardA5('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderA6() {
+    const yr = state.year;
+    const exempt = LIFETIME_EXEMPT[yr];
+    const sunsetNote = yr <= 2025
+      ? `<br><br><em>Note: The lifetime exemption is scheduled to decrease to approximately $7 million in 2026 under current law (sunset of the Tax Cuts and Jobs Act).</em>`
+      : `<br><br><em>Note: The reduced exemption reflects the sunset of the Tax Cuts and Jobs Act provisions. The exemption was approximately $13.99 million in 2025.</em>`;
+
+    state.results.form709 = "required";
+    state.results.reasons.push("Form 709 required based on your answers.");
+
+    return `<div class="card">
+      ${renderProgressBar()}
+      <div class="info-box info-box-blue">
+        <strong>About the Lifetime Gift Tax Exemption (${yr})</strong>
+        The unified lifetime gift and estate tax exemption for ${yr} is <strong>${fmtUSD(exempt)}</strong>.
+        <br><br>
+        <strong>Filing Form 709 does NOT necessarily mean you owe gift tax.</strong> The lifetime exemption covers most gifts. However, you <strong>must</strong> file Form 709 to report taxable gifts and track your usage of the lifetime exemption.
+        ${sunsetNote}
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="wizardBack()">&larr; Back</button>
+        <button class="btn btn-primary" onclick="wizardShowResult()">See Results &rarr;</button>
+      </div>
+    </div>`;
+  }
+
+  function renderANo709() {
+    state.results.form709 = "not_required";
+    return `<div class="card">
+      ${renderProgressBar()}
+      <div class="info-box info-box-green">
+        <strong>No Form 709 Required</strong>
+        Based on your answers, you do not need to file Form 709 (Gift Tax Return) for this tax year.
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="wizardBack()">&larr; Back</button>
+        <button class="btn btn-primary" onclick="wizardShowResult()">See Full Summary &rarr;</button>
+      </div>
+    </div>`;
+  }
+
+  /* ── Branch B: Form 3520 ────────────────────────────────────── */
+  function renderB1() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Are you a US person?</p>
+      <p class="helper-text">A "US person" includes US citizens, US residents, and green card holders.</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes", "wizardB1('yes')")}
+        ${optionBtn("B", "No", "wizardB1('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderB1Stop() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <div class="info-box info-box-orange">
+        <strong>Form 3520 Not Applicable</strong>
+        Form 3520 is only required for US persons (citizens, residents, and green card holders). If you are not a US person, this filing requirement does not apply to you.
+      </div>
+      ${navRow(true, `<button class="btn btn-start" onclick="wizardRestart()">Start Over</button>`)}
+    </div>`;
+  }
+
+  function renderB2() {
+    if (!state.year) state.year = 2025;
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">What tax year are you asking about?</p>
+      <div class="select-wrap">
+        <select id="yearSelectB" onchange="wizardB2Year()">
+          <option value="2024" ${state.year==2024?'selected':''}>2024</option>
+          <option value="2025" ${state.year==2025?'selected':''}>2025</option>
+          <option value="2026" ${state.year==2026?'selected':''}>2026</option>
+        </select>
+      </div>
+      <p class="question-label" style="margin-top:1.5rem;">Did you receive a gift or bequest from a foreign person (non-US individual or foreign estate)?</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes", "wizardB2('yes')")}
+        ${optionBtn("B", "No", "wizardB2('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderB3Input() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">What was the total value of gifts received from all foreign individuals and/or foreign estates during the tax year?</p>
+      <p class="helper-text">Include gifts and bequests from all non-US individuals and foreign estates combined. The reporting threshold is ${fmtUSD(FOREIGN_INDIV_THRESHOLD)}.</p>
+      <div class="currency-input-wrap">
+        <span class="prefix">$</span>
+        <input type="text" class="currency-input" id="foreignAmtInput" placeholder="e.g. 150,000" oninput="formatCurrencyInput(this)">
+      </div>
+      <div id="b3Note" style="margin-top:1rem;"></div>
+      ${navRow(true, `<button class="btn btn-primary" onclick="wizardB3Submit()">Continue &rarr;</button>`)}
+    </div>`;
+  }
+
+  function renderB4() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Was any part of this amount from a foreign estate (a bequest or inheritance)?</p>
+      <p class="helper-text">Foreign inheritances also count toward the $100,000 reporting threshold.</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes &mdash; some or all was from a foreign estate", "wizardB4('yes')")}
+        ${optionBtn("B", "No &mdash; all gifts were from living foreign individuals", "wizardB4('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderB5() {
+    const yr = state.year || 2025;
+    const thresh = FOREIGN_CORP_THRESHOLD[yr] || 19570;
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Did you receive a distribution or gift from a foreign corporation or foreign partnership?</p>
+      <p class="helper-text">The reporting threshold for ${yr} is ${fmtUSD(thresh)}.</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes", "wizardB5('yes')")}
+        ${optionBtn("B", "No", "wizardB5('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  function renderB5Input() {
+    const yr = state.year || 2025;
+    const thresh = FOREIGN_CORP_THRESHOLD[yr] || 19570;
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">What was the total value received from foreign corporations/partnerships during ${yr}?</p>
+      <p class="helper-text">The reporting threshold is ${fmtUSD(thresh)}.</p>
+      <div class="currency-input-wrap">
+        <span class="prefix">$</span>
+        <input type="text" class="currency-input" id="foreignCorpInput" placeholder="e.g. 25,000" oninput="formatCurrencyInput(this)">
+      </div>
+      ${navRow(true, `<button class="btn btn-primary" onclick="wizardB5Submit()">Continue &rarr;</button>`)}
+    </div>`;
+  }
+
+  function renderB6() {
+    return `<div class="card">
+      ${renderProgressBar()}
+      <p class="question-label">Did you have any transactions with a foreign trust?</p>
+      <p class="helper-text">This includes contributions to, distributions from, or loans from a foreign trust.</p>
+      <div class="option-group">
+        ${optionBtn("A", "Yes", "wizardB6('yes')")}
+        ${optionBtn("B", "No", "wizardB6('no')")}
+      </div>
+      ${navRow()}
+    </div>`;
+  }
+
+  /* ── Result page ───────────────────────────────────────────── */
+  function renderResult() {
+    const r = state.results;
+    const yr = state.year || 2025;
+
+    let html = `<div class="card">${renderProgressBar()}<h2 style="color:var(--blue);margin-bottom:1rem;">Filing Determination</h2>`;
+
+    // Form 709
+    html += `<div class="result-section">`;
+    if (r.form709 === "required") {
+      html += `<h3><span class="badge badge-required">Required</span> Form 709 — Gift Tax Return</h3>`;
+      html += `<div class="info-box info-box-red"><strong>Why:</strong> `;
+      html += r.reasons709 ? r.reasons709.join(" ") : "Your gifts exceeded the annual exclusion or triggered another filing requirement.";
+      html += `</div>`;
+    } else if (r.form709 === "maybe") {
+      html += `<h3><span class="badge badge-maybe">May Be Required</span> Form 709 — Gift Tax Return</h3>`;
+      html += `<div class="info-box info-box-orange"><strong>Why:</strong> `;
+      html += r.reasons709 ? r.reasons709.join(" ") : "Based on your answers, Form 709 may be required. Consult your tax advisor.";
+      html += `</div>`;
+    } else if (r.form709 === "not_required") {
+      html += `<h3><span class="badge badge-not-required">Not Required</span> Form 709 — Gift Tax Return</h3>`;
+      html += `<div class="info-box info-box-green"><strong>Based on your answers, Form 709 is not required for ${yr}.</strong></div>`;
+    } else {
+      html += `<h3><span style="color:var(--gray-400);">N/A</span> Form 709 — Not evaluated</h3>`;
+    }
+    html += `</div>`;
+
+    // Form 3520
+    html += `<div class="result-section">`;
+    if (r.form3520 === "required") {
+      html += `<h3><span class="badge badge-required">Required</span> Form 3520 — Foreign Gift Reporting</h3>`;
+      html += `<div class="info-box info-box-red"><strong>Why:</strong> `;
+      html += r.reasons3520 ? r.reasons3520.join(" ") : "Your foreign gifts exceeded the reporting threshold.";
+      html += `</div>`;
+      if (r.form3520a) {
+        html += `<div class="info-box info-box-orange"><strong>Form 3520-A may also be required</strong> due to transactions with a foreign trust.</div>`;
+      }
+    } else if (r.form3520 === "not_required") {
+      html += `<h3><span class="badge badge-not-required">Not Required</span> Form 3520 — Foreign Gift Reporting</h3>`;
+      html += `<div class="info-box info-box-green"><strong>Based on your answers, Form 3520 is not required for ${yr}.</strong></div>`;
+    } else {
+      html += `<h3><span style="color:var(--gray-400);">N/A</span> Form 3520 — Not evaluated</h3>`;
+    }
+    html += `</div>`;
+
+    // Deadlines & Penalties
+    html += `<div class="result-grid">`;
+    // Deadlines
+    html += `<div class="result-card"><h4>Filing Deadlines</h4><ul>`;
+    if (r.form709 === "required" || r.form709 === "maybe") {
+      html += `<li><strong>Form 709:</strong> April 15 following the tax year. Automatically extends with a Form 1040 extension.</li>`;
+    }
+    if (r.form3520 === "required") {
+      html += `<li><strong>Form 3520:</strong> April 15 following the tax year. Can be extended by filing Form 7004 or with a Form 1040 extension.</li>`;
+    }
+    if (r.form709 !== "required" && r.form709 !== "maybe" && r.form3520 !== "required") {
+      html += `<li>No filing deadlines apply based on your answers.</li>`;
+    }
+    html += `</ul></div>`;
+
+    // Penalties
+    html += `<div class="result-card"><h4>Potential Penalties</h4><ul>`;
+    if (r.form709 === "required" || r.form709 === "maybe") {
+      html += `<li><strong>Form 709:</strong> Generally no penalty for late filing if no tax is due. If tax is owed: 5% of tax per month for failure to file, plus interest.</li>`;
+    }
+    if (r.form3520 === "required") {
+      html += `<li><strong>Form 3520 (foreign gifts):</strong> <span style="color:var(--red);font-weight:600;">5% of the gift amount per month</span>, up to 25% of the total gift.</li>`;
+      if (r.form3520a) {
+        html += `<li><strong>Form 3520 (foreign trust):</strong> <span style="color:var(--red);font-weight:600;">35% of the gross distribution or transfer amount</span>.</li>`;
+      }
+    }
+    if (r.form709 !== "required" && r.form709 !== "maybe" && r.form3520 !== "required") {
+      html += `<li>No penalty exposure based on your answers.</li>`;
+    }
+    html += `</ul></div></div>`;
+
+    // Key Notes
+    html += `<div class="result-section"><h3>Key Notes</h3><ul>`;
+    html += `<li>Gifts between spouses where <strong>both are US citizens</strong> are unlimited and tax-free (unlimited marital deduction).</li>`;
+    html += `<li>The $100,000 foreign gift threshold is <strong>aggregate from all foreign persons</strong>, not per-person.</li>`;
+    html += `<li>Form 709 tracks lifetime exemption usage even when no tax is owed.</li>`;
+    if (yr <= 2025) {
+      html += `<li>The lifetime exemption is ${fmtUSD(LIFETIME_EXEMPT[yr])} for ${yr} and is scheduled to drop to ~$7M in 2026 under current law.</li>`;
+    }
+    html += `</ul></div>`;
+
+    // Actions
+    html += `<div class="nav-row" style="margin-top:1.5rem;">
+      <button class="btn btn-secondary" onclick="wizardRestart()">Start Over</button>
+      <button class="btn btn-primary" onclick="window.print()">Print Results</button>
+    </div>`;
+
+    html += `</div>`;
+    return html;
+  }
+
+  /* ── Global handlers ───────────────────────────────────────── */
+  window.wizardBack = goBack;
+  window.wizardRestart = restart;
+
+  window.wizardBranch = function(b) {
+    state.branch = b;
+    if (b === "A") go("a1");
+    else if (b === "B") go("b1");
+    else go("c1");
+  };
+
+  // Branch C
+  window.wizardC1 = function(v) {
+    if (v === "gave") { state.branch = "A"; go("a1"); }
+    else if (v === "received") {
+      go("c_recv_q");
+      // Ask if from foreign person
+      state.step = "c_recv";
+      state.history.push("c1");
+      app.innerHTML = `<div class="card fade-in">
+        ${renderProgressBar()}
+        <p class="question-label">Was the gift from a foreign (non-US) person, foreign estate, foreign corporation, or foreign partnership?</p>
+        <div class="option-group">
+          ${optionBtn("A", "Yes &mdash; the gift was from a foreign source", "wizardC2('foreign')")}
+          ${optionBtn("B", "No &mdash; the gift was from a US person", "wizardC2('domestic')")}
+          ${optionBtn("C", "I'm not sure", "wizardC2('unsure')")}
+        </div>
+        ${navRow()}
+      </div>`;
+    }
+    else if (v === "both") {
+      // Show both branches info
+      state.step = "c_both";
+      state.history.push("c1");
+      app.innerHTML = `<div class="card fade-in">
+        ${renderProgressBar()}
+        <p class="question-label">Let's handle each situation separately.</p>
+        <p class="helper-text">Since you both gave and received gifts, you may need to check for both Form 709 (for gifts you gave) and Form 3520 (if you received foreign gifts).</p>
+        <div class="option-group">
+          ${optionBtn("A", "Start with gifts I <strong>gave</strong> (Form 709 check)", "wizardBranch('A')")}
+          ${optionBtn("B", "Start with gifts I <strong>received</strong> from foreign sources (Form 3520 check)", "wizardBranch('B')")}
+        </div>
+        ${navRow()}
+      </div>`;
+    }
+  };
+
+  window.wizardC2 = function(v) {
+    if (v === "foreign") { state.branch = "B"; go("b1"); }
+    else if (v === "domestic") {
+      state.step = "c_domestic";
+      state.history.push("c_recv");
+      app.innerHTML = `<div class="card fade-in">
+        <div class="info-box info-box-green">
+          <strong>No Filing Required for the Recipient</strong>
+          In the US, the <strong>recipient</strong> of a gift generally does not have any tax filing obligation. The <strong>donor</strong> (the person who gave the gift) is the one who may need to file Form 709.
+          <br><br>There is no "gift tax" on receiving a domestic gift. The gift is not taxable income to you.
+        </div>
+        ${navRow(true, `<button class="btn btn-start" onclick="wizardRestart()">Start Over</button>`)}
+      </div>`;
+    }
+    else {
+      state.branch = "B"; go("b1");
+    }
+  };
+
+  // Branch A
+  window.wizardA1 = function(v) {
+    state.answers.usResident = v;
+    if (v === "no") go("a1_stop");
+    else go("a2");
+  };
+
+  window.wizardA2 = function() {
+    const sel = document.getElementById("yearSelect");
+    if (!sel.value) return;
+    state.year = parseInt(sel.value);
+    const yr = state.year;
+    const info = document.getElementById("yearInfo");
+    info.innerHTML = `Annual exclusion: <strong>${fmtUSD(ANNUAL_EXCLUSION[yr])}</strong> per recipient &bull; Lifetime exemption: <strong>${fmtUSD(LIFETIME_EXEMPT[yr])}</strong>`;
+    setTimeout(() => go("a3"), 400);
+  };
+
+  window.wizardA3 = function(v) {
+    state.answers.overExclusion = v;
+    if (v === "yes") {
+      state.results.form709 = "required";
+      state.results.reasons709 = [`You gave more than the ${fmtUSD(ANNUAL_EXCLUSION[state.year])} annual exclusion to at least one individual in ${state.year}.`];
+      go("a6");
+    } else {
+      go("a4");
+    }
+  };
+
+  window.wizardA4 = function(v) {
+    state.answers.nonCitSpouse = v;
+    if (v === "yes") go("a4b");
+    else go("a5");
+  };
+
+  window.wizardA4b = function(v) {
+    const yr = state.year;
+    const limit = SPOUSAL_LIMIT[yr] || 190000;
+    if (v === "yes") {
+      state.results.form709 = "required";
+      state.results.reasons709 = [`Gifts to a non-citizen spouse exceeded the ${fmtUSD(limit)} annual limit for ${yr}.`];
+      go("a6");
+    } else {
+      // Under spousal limit — check other triggers
+      go("a5");
+    }
+  };
+
+  window.wizardA5 = function(v) {
+    if (v === "yes") {
+      state.results.form709 = "maybe";
+      state.results.reasons709 = ["Gifts to trusts, gift splitting elections, future interest gifts, or 529 plan contributions with 5-year averaging may require filing Form 709."];
+      go("a6");
+    } else {
+      state.results.form709 = "not_required";
+      go("a_no709");
+    }
+  };
+
+  window.wizardShowResult = function() {
+    go("result");
+  };
+
+  // Branch B
+  window.wizardB1 = function(v) {
+    if (v === "no") go("b1_stop");
+    else go("b2");
+  };
+
+  window.wizardB2Year = function() {
+    const sel = document.getElementById("yearSelectB");
+    if (sel) state.year = parseInt(sel.value);
+  };
+
+  window.wizardB2 = function(v) {
+    const sel = document.getElementById("yearSelectB");
+    if (sel) state.year = parseInt(sel.value);
+    state.answers.foreignIndivGift = v;
+    if (v === "yes") go("b3_input");
+    else go("b5");
+  };
+
+  window.wizardB3Submit = function() {
+    const input = document.getElementById("foreignAmtInput");
+    const val = parseCurrency(input.value);
+    if (isNaN(val) || val < 0) {
+      document.getElementById("b3Note").innerHTML = `<span style="color:var(--red);">Please enter a valid dollar amount.</span>`;
+      return;
+    }
+    state.answers.foreignIndivAmt = val;
+    if (val > FOREIGN_INDIV_THRESHOLD) {
+      state.results.form3520 = "required";
+      state.results.reasons3520 = state.results.reasons3520 || [];
+      state.results.reasons3520.push(`Total foreign individual/estate gifts of ${fmtUSD(val)} exceed the ${fmtUSD(FOREIGN_INDIV_THRESHOLD)} threshold.`);
+    }
+    go("b4");
+  };
+
+  window.wizardB4 = function(v) {
+    state.answers.foreignEstate = v;
+    if (v === "yes") {
+      state.results.notes = state.results.notes || [];
+      state.results.notes.push("Foreign estate bequests were included in the gift total.");
+    }
+    go("b5");
+  };
+
+  window.wizardB5 = function(v) {
+    state.answers.foreignCorp = v;
+    if (v === "yes") go("b5_input");
+    else go("b6");
+  };
+
+  window.wizardB5Submit = function() {
+    const input = document.getElementById("foreignCorpInput");
+    const val = parseCurrency(input.value);
+    if (isNaN(val) || val < 0) return;
+    const yr = state.year || 2025;
+    const thresh = FOREIGN_CORP_THRESHOLD[yr] || 19570;
+    state.answers.foreignCorpAmt = val;
+    if (val > thresh) {
+      state.results.form3520 = "required";
+      state.results.reasons3520 = state.results.reasons3520 || [];
+      state.results.reasons3520.push(`Distributions from foreign corporations/partnerships of ${fmtUSD(val)} exceed the ${fmtUSD(thresh)} threshold for ${yr}.`);
+    }
+    go("b6");
+  };
+
+  window.wizardB6 = function(v) {
+    state.answers.foreignTrust = v;
+    if (v === "yes") {
+      state.results.form3520 = "required";
+      state.results.form3520a = true;
+      state.results.reasons3520 = state.results.reasons3520 || [];
+      state.results.reasons3520.push("Transactions with a foreign trust (contributions, distributions, or loans) require Form 3520 reporting. Form 3520-A may also be required.");
+    }
+    // If nothing triggered 3520
+    if (!state.results.form3520) {
+      state.results.form3520 = "not_required";
+    }
+    go("result");
+  };
+
+  /* ── Currency helpers ──────────────────────────────────────── */
+  function parseCurrency(str) {
+    return parseFloat((str || "").replace(/[^0-9.]/g, ""));
+  }
+
+  window.formatCurrencyInput = function(el) {
+    let raw = el.value.replace(/[^0-9]/g, "");
+    if (raw) {
+      el.value = parseInt(raw).toLocaleString("en-US");
+    }
+  };
+
+  /* ── Init ──────────────────────────────────────────────────── */
+  render();
+})();
+</script>
+<div style="text-align:center;padding:20px 0;margin-top:30px;border-top:1px solid #ddd;color:#888;font-size:0.8rem">
+  © 2026 <a href="https://www.pstein.com" style="color:#4a7c3f;text-decoration:none">Philip Stein &amp; Associates</a> · Free US-Israel Tax Tools
+</div>
+</body>
+</html>
