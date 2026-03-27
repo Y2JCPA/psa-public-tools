@@ -475,7 +475,7 @@ a:hover { text-decoration: underline; }
     <div class="step" data-step="q4">
       <span class="step-number">Question 4</span>
       <div class="question">What is your ownership percentage of the foreign corporation?</div>
-      <div class="question-help">Include direct, indirect, and constructive ownership combined (by vote or value).</div>
+      <div class="question-help">Include <strong>direct, indirect, and constructive</strong> ownership combined (by vote or value). Constructive ownership under IRC §318 (as modified by §958(b)) means you may be treated as owning stock held by family members, partnerships, corporations, or trusts you have an interest in. If you are unsure whether attribution applies, consult a tax professional before answering.</div>
       <div class="radio-group" id="ownershipGroup">
         <label class="radio-option" onclick="selectRadio(this,'lt10')">
           <input type="radio" name="ownership" value="lt10">
@@ -526,33 +526,21 @@ a:hover { text-decoration: underline; }
     <!-- Q7 -->
     <div class="step" data-step="q7">
       <span class="step-number">Question 7</span>
-      <div class="question">Do you own more than 50% of the foreign corporation?</div>
-      <div class="question-help">By vote or value, directly or indirectly. This determines whether you have control of the corporation.</div>
+      <div class="question">Do all US shareholders combined own more than 50% of the foreign corporation?</div>
+      <div class="question-help">A foreign corporation is a <strong>Controlled Foreign Corporation (CFC)</strong> when US shareholders — counting only those who each own 10% or more (by vote or value, including constructive ownership) — collectively own more than 50% by vote or value. Include all qualifying US shareholders, not just yourself. If you answered "More than 50%" in Q4, the answer here is likely Yes.</div>
       <div class="btn-row">
         <button class="choice-btn" onclick="answer('q7','yes')">Yes</button>
         <button class="choice-btn" onclick="answer('q7','no')">No</button>
-      </div>
-      <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
-    </div>
-
-    <!-- Q8 -->
-    <div class="step" data-step="q8">
-      <span class="step-number">Question 8</span>
-      <div class="question">Is the foreign corporation a Controlled Foreign Corporation (CFC)?</div>
-      <div class="question-help">A CFC is a foreign corporation in which US shareholders (each owning &ge;10% by vote or value) collectively own more than 50% by vote or value.</div>
-      <div class="btn-row">
-        <button class="choice-btn" onclick="answer('q8','yes')">Yes</button>
-        <button class="choice-btn" onclick="answer('q8','no')">No</button>
-        <button class="choice-btn" onclick="answer('q8','unsure')">Not Sure</button>
+        <button class="choice-btn" onclick="answer('q7','unsure')">Not Sure</button>
       </div>
       <div class="nav-row"><button class="btn btn-back" onclick="goBack()">&#8592; Back</button><span></span></div>
     </div>
 
     <!-- Q9 -->
     <div class="step" data-step="q9">
-      <span class="step-number">Question 9</span>
-      <div class="question">Is the foreign corporation a Specified Foreign Corporation (SFC)?</div>
-      <div class="question-help">An SFC is either (a) a CFC, or (b) a foreign corporation that has at least one domestic corporate shareholder owning 10% or more.</div>
+      <span class="step-number">Question 8</span>
+      <div class="question">Does the foreign corporation have at least one US domestic corporation as a 10%+ shareholder?</div>
+      <div class="question-help">A <strong>Specified Foreign Corporation (SFC)</strong> is either (a) a CFC (as determined above), or (b) a foreign corporation in which at least one domestic corporation owns 10% or more (by vote or value). If you answered "Yes" to the previous question (collective US shareholder ownership &gt;50%), this corporation is already an SFC and you can answer Yes. If not, answer based on whether any <em>domestic corporation</em> (not individual) holds ≥10%.</div>
       <div class="btn-row">
         <button class="choice-btn" onclick="answer('q9','yes')">Yes</button>
         <button class="choice-btn" onclick="answer('q9','no')">No</button>
@@ -607,7 +595,7 @@ a:hover { text-decoration: underline; }
 
   const totalSteps = 10;
 
-  const stepOrder = ['q1','q2','q3','q3b','q4','q5','q6','q7','q8','q9','q10','q10b'];
+  const stepOrder = ['q1','q2','q3','q3b','q4','q5','q6','q7','q9','q10','q10b'];
 
   function showStep(name) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -662,7 +650,8 @@ a:hover { text-decoration: underline; }
       case 'q6':
         return 'q7';
       case 'q7':
-        return 'q8';
+        // Q7 is now the CFC test; if unsure or yes, ask SFC (Q9); if no, skip to Q9 (SFC still possible)
+        return 'q9';
       case 'q8':
         return 'q9';
       case 'q9':
@@ -688,8 +677,11 @@ a:hover { text-decoration: underline; }
       return cats;
     }
 
+    // Determine CFC status from Q7 (collective US shareholder test)
+    const isCFC = (answers.q7 === 'yes' || answers.q7 === 'unsure');
+
     // Category 1: owns ≥10% AND SFC
-    if (owns10 && (answers.q9 === 'yes' || (answers.q9 === 'unsure' && answers.q8 === 'yes'))) {
+    if (owns10 && (answers.q9 === 'yes' || answers.q9 === 'unsure' || isCFC)) {
       cats.push(1);
     }
 
@@ -703,13 +695,13 @@ a:hover { text-decoration: underline; }
       cats.push(3);
     }
 
-    // Category 4: >50% ownership
-    if (own === 'gt50' || answers.q7 === 'yes') {
+    // Category 4: YOU personally own >50% (direct/indirect/constructive)
+    if (own === 'gt50') {
       cats.push(4);
     }
 
-    // Category 5: owns ≥10% AND CFC
-    if (owns10 && (answers.q8 === 'yes')) {
+    // Category 5: owns ≥10% AND CFC (collective US shareholders >50%)
+    if (owns10 && isCFC) {
       cats.push(5);
     }
 
